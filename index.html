@@ -181,7 +181,7 @@ async function triggerAiPremium() {
     
     try {
         // Звертаємося до нашої прихованої серверної функції замість Google
-        const response = await fetch('/.netlify/functions/analyzeDream', {
+        const response = await fetch('/api/analyzeDream', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text, emotion, real })
