@@ -183,7 +183,10 @@ async function triggerAiPremium() {
 
         document.getElementById('resultBox').style.display = 'block';
         document.getElementById('pdfBtn').style.display = 'block';
-        
+        // Відправляємо отриманий текст у базу даних
+if (window.saveToFirebase) {
+    window.saveToFirebase(result); 
+}
     } catch (error) {
         alert("Помилка зв'язку з сервером. Можливо, функція Netlify ще не розгорнута.");
         console.error(error);
@@ -196,8 +199,7 @@ async function triggerAiPremium() {
    <script type="module">
   // 1. Ці два рядки підключають саму систему Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
  
   const firebaseConfig = {
     apiKey: "AIzaSyAS_uZEKojn8bGZZ5SNKSM18HejuA9a5lQ",
@@ -210,11 +212,22 @@ async function triggerAiPremium() {
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-</script>
 
   // 3. Ці два рядки запускають базу з твоїми ключами
-  const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+       window.saveToFirebase = async function(aiResultText) {
+    try {
+        // Записуємо в колекцію users (я бачив її на твоєму скріншоті бази)
+        await addDoc(collection(db, "users"), {
+            analysis: aiResultText,
+            timestamp: new Date(),
+            status: "active"
+        });
+        console.log("✅ Успішно збережено в Firebase!");
+    } catch (e) {
+        console.error("❌ Помилка збереження в базу: ", e);
+    }
+};
 </script> 
 </body>
 </html>
