@@ -103,6 +103,11 @@
         </div>
     </div>
 
+<div id="auth-section" style="margin-bottom: 20px; text-align: center;">
+    <button id="loginBtn" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Увійти через Google</button>
+    <p id="userInfo" style="font-weight: bold; margin-top: 10px;"></p>
+</div>
+    
     <button id="pdfBtn" class="btn-pdf" onclick="saveAsPdf()">Зберегти розбір у PDF 📥</button>
 </div>
 
@@ -200,7 +205,8 @@ if (window.saveToFirebase) {
   // 1. Ці два рядки підключають саму систему Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
- 
+ import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+       
   const firebaseConfig = {
     apiKey: "AIzaSyAS_uZEKojn8bGZZ5SNKSM18HejuA9a5lQ",
     authDomain: "dreams-app-base.firebaseapp.com",
@@ -215,6 +221,31 @@ if (window.saveToFirebase) {
 
   // 3. Ці два рядки запускають базу з твоїми ключами
   const db = getFirestore(app);
+       // --- ПОЧАТОК ЛОГІКИ АВТОРИЗАЦІЇ ---
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    window.currentUser = null;
+
+    // Слідкуємо, чи зайшла людина
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            window.currentUser = user; // Запам'ятовуємо користувача
+            document.getElementById('loginBtn').style.display = 'none'; // Ховаємо кнопку входу
+            document.getElementById('userInfo').innerText = "✅ Ви увійшли як: " + user.displayName;
+        } else {
+            window.currentUser = null;
+            document.getElementById('loginBtn').style.display = 'inline-block';
+            document.getElementById('userInfo').innerText = "";
+        }
+    });
+
+    // Дія при натисканні на кнопку входу
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        signInWithPopup(auth, provider).catch((error) => {
+            console.error("Помилка входу: ", error);
+        });
+    });
+    // --- КІНЕЦЬ ЛОГІКИ АВТОРИЗАЦІЇ ---
        window.saveToFirebase = async function(aiResultText) {
     try {
         // Записуємо в колекцію users (я бачив її на твоєму скріншоті бази)
