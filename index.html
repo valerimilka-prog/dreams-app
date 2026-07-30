@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta name="apple-mobile-web-app-title" content="Аналізатор">
+    <link rel="icon" type="image/svg+xml" href="calc-icon.svg">
+    <link rel="apple-touch-icon" href="calc-icon.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аналітика Снів</title>
+    <style>
+        body { font-family: 'Georgia', serif; background-color: #0b0c10; background-image: radial-gradient(circle at 50% 0%, #1a120b 0%, #0b0c10 70%); color: #e5dcc5; margin: 0; padding: 40px 20px; display: flex; justify-content: center; line-height: 1.6; }
+        .container { max-width: 700px; width: 100%; background: #12131a; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.7), 0 0 30px rgba(101, 78, 55, 0.15); border: 1px solid #2c251e; }
+        .mystic-header { text-align: center; margin-bottom: 30px; position: relative; }
+        .mystic-header::after { content: " ☾ ✵ ☽ "; display: block; color: #d4af37; font-size: 14px; margin-top: 10px; letter-spacing: 5px; }
+        h1 { color: #d4af37; font-size: 28px; margin: 0; font-weight: normal; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        p.subtitle { color: #a49685; font-size: 15px; font-style: italic; margin: 10px 0 0 0; }
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 10px; font-size: 16px; color: #e5dcc5; letter-spacing: 0.5px; }
+        textarea, input { width: 100%; padding: 14px; background: #07080c; border: 1px solid #3a3227; border-radius: 8px; color: #f5efe6; box-sizing: border-box; font-size: 15px; font-family: sans-serif; transition: all 0.3s ease; }
+        textarea:focus, input:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 8px rgba(212, 175, 55, 0.2); }
+        textarea { resize: vertical; height: 120px; }
+        .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 35px; }
+        button { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-family: 'Georgia', serif; font-weight: bold; cursor: pointer; transition: all 0.3s ease; letter-spacing: 0.5px; }
+        .btn-premium { background: linear-gradient(135deg, #8c6239 0%, #543d2b 100%); color: #fff; box-shadow: 0 4px 15px rgba(140, 98, 57, 0.3); }
+        .btn-pdf { background: #1a233a; color: #58a6ff; border: 1px solid #243b66; margin-top: 20px; display: none; }
+        .result-box { margin-top: 40px; padding: 30px; background: #181920; border-radius: 12px; border: 1px solid #3a3227; position: relative; display: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); }
+        .result-box::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #8c6239, #d4af37, #8c6239); border-top-left-radius: 12px; border-top-right-radius: 12px; }
+        .result-section { margin-bottom: 24px; }
+        .result-title { font-weight: normal; color: #d4af37; margin-bottom: 8px; font-size: 18px; border-bottom: 1px dashed #3a3227; padding-bottom: 4px; }
+        .result-text { font-size: 15px; color: #c5baab; line-height: 1.7; text-align: justify; padding: 5px; border-radius: 4px; }
+        .result-text[contenteditable="true"]:focus { background: #22242e; outline: 1px solid #d4af37; color: #fff; }
+        .warning-box { background: rgba(212, 175, 55, 0.1); border-left: 3px solid #d4af37; padding: 12px; margin-bottom: 20px; font-size: 14px; color: #c5baab; font-style: italic; }
+
+        @media print {
+            body, .container, .result-box { background: white !important; color: black !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
+            .form-group, .btn-group, .btn-pdf, .mystic-header::after, .warning-box { display: none !important; }
+            .result-box { display: block !important; border: 2px solid #333 !important; padding: 20px !important; }
+            .result-title { color: black !important; border-bottom: 1px solid #333 !important; }
+            .result-text { color: black !important; background: transparent !important; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 30px; font-family: 'Georgia', serif; }
+        }
+        .print-header { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="pdfHeader" class="print-header">
+        <h2 style="margin: 0; color: #000;">ГЛИБИННИЙ АНАЛІЗ СНОВИДІННЯ</h2>
+        <p style="font-style: italic; margin: 5px 0 20px 0; color: #555;">Юнгіанська психологічна експертиза</p>
+        <p id="pdfMeta" style="font-size: 14px; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;"></p>
+    </div>
+
+    <div class="mystic-header">
+        <h1>Аналітика Снів</h1>
+        <p class="subtitle">Ваш персональний провідник у несвідоме</p>
+    </div>
+
+    <div class="form-group">
+        <label>Ваше ім'я або псевдонім</label>
+        <input type="text" id="clientName" placeholder="Як до вас звертатися?">
+    </div>
+    
+    <div class="warning-box">
+        <b>Вказівка для аналізу:</b> Описуйте сон, фокусуючись на діях та емоціях. Для коректної роботи алгоритмів намагайтеся уникати надто кривавих чи відвертих подробиць. Це допоможе системі безпечно обробити метафори.
+    </div>
+
+    <div class="form-group">
+        <label>Що вам наснилося?</label>
+        <textarea id="dreamText" placeholder="Детально опишіть сюжет, персонажів, місця..."></textarea>
+    </div>
+    <div class="form-group">
+        <label>Головна емоція уві сні</label>
+        <input type="text" id="dreamEmotion" placeholder="Страх, тривога, спокій, гнів...">
+    </div>
+    <div class="form-group">
+        <label>Поточна життєва ситуація</label>
+        <textarea id="realLife" style="height: 80px;" placeholder="Яка проблема чи вибір зараз турбують вас наяву?"></textarea>
+    </div>
+
+    <div class="btn-group">
+        <!-- Оновлена кнопка з правильною назвою -->
+        <button class="btn-premium" onclick="triggerAiPremium()">Розшифрувати послання (Юнгіанський розбір) ✵</button>
+    </div>
+
+    <div id="resultBox" class="result-box">
+        <div class="result-section">
+            <div class="result-title">✵ Торкання до Архетипу</div>
+            <div id="resArchetypes" class="result-text" contenteditable="true" style="font-weight: bold; color: #e5dcc5; font-style: italic;"></div>
+        </div>
+        <div class="result-section">
+            <div class="result-title">✵ Таємниця Метафори</div>
+            <div id="resAnalysis" class="result-text" contenteditable="true"></div>
+        </div>
+        <div class="result-section">
+            <div class="result-title">✵ Дзеркало для Его (Компенсація)</div>
+            <div id="resCompensation" class="result-text" contenteditable="true"></div>
+        </div>
+        <div class="result-section">
+            <div class="result-title">✵ Крок у Реальність (Інтеграція)</div>
+            <div id="resAction" class="result-text" contenteditable="true"></div>
+        </div>
+    </div>
+
+    <button id="pdfBtn" class="btn-pdf" onclick="saveAsPdf()">Зберегти розбір у PDF 📥</button>
+</div>
+
+<script>
+let currentClientName = "Шукач істини";
+
+function sanitizeDreamText(text) {
+    if (!text) return "";
+    let cleanText = text;
+    cleanText = cleanText.replace(/вбив[а-яіїєґ]*/gi, 'знищив');
+    cleanText = cleanText.replace(/вбити/gi, 'знищити');
+    cleanText = cleanText.replace(/заріз[а-яіїєґ]*/gi, 'завдав шкоди');
+    cleanText = cleanText.replace(/задушил[а-яіїєґ]*/gi, 'пригнічив');
+    cleanText = cleanText.replace(/кров[а-яіїєґ]*/gi, 'темна рідина');
+    cleanText = cleanText.replace(/розчлен[а-яіїєґ]*/gi, 'повністю зруйнував');
+    cleanText = cleanText.replace(/відірв[а-яіїєґ]*/gi, 'сильно пошкодив');
+    cleanText = cleanText.replace(/труп[а-яіїєґ]*/gi, 'неживе тіло');
+    cleanText = cleanText.replace(/мертв[а-яіїєґ]*/gi, 'неживе');
+    cleanText = cleanText.replace(/зґвалт[а-яіїєґ]*/gi, 'вчинив примус');
+    cleanText = cleanText.replace(/насилува[а-яіїєґ]*/gi, 'жорстко домінував');
+    cleanText = cleanText.replace(/гвалтува[а-яіїєґ]*/gi, 'жорстко домінував');
+    cleanText = cleanText.replace(/секс[а-яіїєґ]*/gi, 'інтимний контакт');
+    return cleanText;
+}
+
+function saveAsPdf() {
+    const date = new Date().toLocaleDateString('uk-UA').replace(/\./g, '-');
+    const originalTitle = document.title;
+    document.title = `Аналіз сну - ${currentClientName} - ${date}`;
+    window.print();
+    document.title = originalTitle;
+}
+
+// Оновлена функція, яка стукає у ваш захищений бекенд Netlify Functions
+async function triggerAiPremium() {
+    const rawText = document.getElementById('dreamText').value;
+    const text = sanitizeDreamText(rawText);
+    const emotion = document.getElementById('dreamEmotion').value;
+    const real = document.getElementById('realLife').value;
+    currentClientName = document.getElementById('clientName').value || "Шукач істини";
+
+    if(!text) { alert("Будь ласка, опишіть сон для аналізу."); return; }
+
+    const btn = document.querySelector('.btn-premium');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "⏳ Провідник аналізує... Це займе 5-10 секунд...";
+    btn.disabled = true;
+    
+    try {
+        // Звертаємося до нашої прихованої серверної функції замість Google
+        const response = await fetch('/.netlify/functions/analyzeDream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, emotion, real })
+        });
+
+        // Якщо сервер повернув помилку (наприклад, блокування безпеки)
+        if (!response.ok) {
+            const errData = await response.json();
+            if (errData.error === "BLOCKED_BY_SAFETY") {
+                alert("На жаль, цей сон містить елементи, які система не може обробити. Спробуйте перефразувати.");
+            } else {
+                alert("Помилка: " + (errData.error || "Невідома помилка сервера"));
+            }
+            return;
+        }
+
+        const result = await response.json();
+
+        // Виводимо результати
+        document.getElementById('resArchetypes').innerHTML = result.archetype;
+        document.getElementById('resAnalysis').innerHTML = result.analysis.replace(/\n/g, '<br>');
+        document.getElementById('resCompensation').innerHTML = result.compensation.replace(/\n/g, '<br>');
+        document.getElementById('resAction').innerHTML = result.action.replace(/\n/g, '<br>');
+
+        const date = new Date().toLocaleDateString('uk-UA');
+        document.getElementById('pdfMeta').innerHTML = `Клієнт: ${currentClientName} &nbsp;&nbsp;|&nbsp;&nbsp; Дата: ${date} &nbsp;&nbsp;|&nbsp;&nbsp; Юнгіанський розбір`;
+
+        document.getElementById('resultBox').style.display = 'block';
+        document.getElementById('pdfBtn').style.display = 'block';
+        
+    } catch (error) {
+        alert("Помилка зв'язку з сервером. Можливо, функція Netlify ще не розгорнута.");
+        console.error(error);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+</script>
+</body>
+</html>
