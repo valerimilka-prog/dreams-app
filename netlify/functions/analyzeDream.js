@@ -57,7 +57,7 @@ try {
     console.warn("Основна модель 3.5 перевантажена, перемикаємось на страхуючу 3.1...", primaryError);
     
     // Спроба 2: Резервна модель 3.1
-    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash:generateContent?key=${apiKey}`, {
+    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
