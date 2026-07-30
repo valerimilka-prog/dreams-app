@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Аналітика Снів</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { font-family: 'Georgia', serif; background-color: #0b0c10; background-image: radial-gradient(circle at 50% 0%, #1a120b 0%, #0b0c10 70%); color: #e5dcc5; margin: 0; padding: 40px 20px; display: flex; justify-content: center; line-height: 1.6; }
         .container { max-width: 700px; width: 100%; background: #12131a; padding: 40px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.7), 0 0 30px rgba(101, 78, 55, 0.15); border: 1px solid #2c251e; }
@@ -192,5 +193,25 @@ async function triggerAiPremium() {
     }
 }
 </script>
+   <script type="module">
+  // 1. Ці два рядки підключають саму систему Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // 2. ОСЬ СЮДИ ВСТАВЛЯЄШ СВІЙ ЗБЕРЕЖЕНИЙ КОД
+  // (Він виглядає приблизно так:)
+  const firebaseConfig = {
+    apiKey: "твої-букви-та-цифри",
+    authDomain: "dreams-app-base-...",
+    projectId: "dreams-app-base",
+    storageBucket: "...",
+    messagingSenderId: "...",
+    appId: "..."
+  };
+
+  // 3. Ці два рядки запускають базу з твоїми ключами
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+</script> 
 </body>
 </html>
