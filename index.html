@@ -198,16 +198,25 @@ async function triggerAiPremium() {
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // 2. ОСЬ СЮДИ ВСТАВЛЯЄШ СВІЙ ЗБЕРЕЖЕНИЙ КОД
-  // (Він виглядає приблизно так:)
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
   const firebaseConfig = {
-    apiKey: "твої-букви-та-цифри",
-    authDomain: "dreams-app-base-...",
+    apiKey: "AIzaSyAS_uZEKojn8bGZZ5SNKSM18HejuA9a5lQ",
+    authDomain: "dreams-app-base.firebaseapp.com",
     projectId: "dreams-app-base",
-    storageBucket: "...",
-    messagingSenderId: "...",
-    appId: "..."
+    storageBucket: "dreams-app-base.firebasestorage.app",
+    messagingSenderId: "578935795568",
+    appId: "1:578935795568:web:0c7301bdcbd246f8eb69b5"
   };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 
   // 3. Ці два рядки запускають базу з твоїми ключами
   const app = initializeApp(firebaseConfig);
