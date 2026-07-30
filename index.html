@@ -229,12 +229,7 @@ if (window.saveToFirebase) {
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-// Робимо їх доступними глобально для всього файлу:
-window.db = getFirestore();
-window.doc = doc;
-window.getDoc = getDoc;
-window.setDoc = setDoc;
-       
+
   const firebaseConfig = {
     apiKey: "AIzaSyAS_uZEKojn8bGZZ5SNKSM18HejuA9a5lQ",
     authDomain: "dreams-app-base.firebaseapp.com",
@@ -246,9 +241,11 @@ window.setDoc = setDoc;
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
-
-  // 3. Ці два рядки запускають базу з твоїми ключами
-  const db = getFirestore(app);
+// 2. А вже потім запускаємо базу даних та інші сервіси
+window.db = getFirestore(app);
+window.doc = doc;
+window.getDoc = getDoc;
+window.setDoc = setDoc;
        // --- ПОЧАТОК ЛОГІКИ АВТОРИЗАЦІЇ ---
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
