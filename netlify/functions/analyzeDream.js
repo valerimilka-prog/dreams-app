@@ -53,6 +53,7 @@ exports.handler = async function(event, context) {
             return { statusCode: 400, body: JSON.stringify({ error: "BLOCKED_BY_SAFETY" }) };
         }
 
+        console.error("ЩО ВІДПОВІВ GEMINI:", JSON.stringify(data));
         let aiText = data.candidates[0].content.parts[0].text;
         aiText = aiText.replace(/```json/gi, '').replace(/```/g, '').trim();
         
