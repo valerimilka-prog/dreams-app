@@ -154,8 +154,8 @@ async function triggerAiPremium() {
         return;
     }
 
-    const userRef = doc(db, "users", window.currentUser.uid);
-    const userSnap = await getDoc(userRef);
+    const userRef = window.doc(db, "users", window.currentUser.uid);
+    const userSnap = await window. getDoc(userRef);
 
     let remainingDreams = 3;
     if (userSnap.exists() && userSnap.data().dreamsLeft !== undefined) {
@@ -168,7 +168,7 @@ async function triggerAiPremium() {
     }
 
     // Зменшуємо лічильник на 1
-    await setDoc(userRef, {
+    await window. setDoc(userRef, {
         email: window.currentUser.email,
         dreamsLeft: remainingDreams - 1
     }, { merge: true });
@@ -228,7 +228,13 @@ if (window.saveToFirebase) {
   // 1. Ці два рядки підключають саму систему Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
- import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, addDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// Робимо їх доступними глобально для всього файлу:
+window.db = getFirestore();
+window.doc = doc;
+window.getDoc = getDoc;
+window.setDoc = setDoc;
        
   const firebaseConfig = {
     apiKey: "AIzaSyAS_uZEKojn8bGZZ5SNKSM18HejuA9a5lQ",
