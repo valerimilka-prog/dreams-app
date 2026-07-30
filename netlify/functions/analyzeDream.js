@@ -31,22 +31,48 @@ exports.handler = async function(event, context) {
           "action": "Порада (Пиши строго на 'Ви': 'Вам варто зробити...', 1 абзац)"
         }`;
 
-        // Робимо безпечний запит до Google Gemini
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: "Проаналізуй цей текст: " + promptText }] }],
-                safetySettings: [
-                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-                ]
-            })
-        });
+// Робимо безпечний запит до Google Gemini з резервним копіюванням
+let response;
+try {
+    // Спроба 1: Основна модель 3.5
+    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: "Проаналізуй цей текст: " + promptText }] }],
+            safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+            ]
+        })
+    });
+    
+    // Якщо сервер повернув помилку (наприклад 503), кидаємо виняток, щоб спрацював резерв
+    if (!response.ok) {
+        throw new Error(`Помилка основної моделі: ${response.status}`);
+    }
+} catch (primaryError) {
+    console.warn("Основна модель 3.5 перевантажена, перемикаємось на страхуючу 3.1...", primaryError);
+    
+    // Спроба 2: Резервна модель 3.1
+    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: "Проаналізуй цей текст: " + promptText }] }],
+            safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+            ]
+        })
+    });
+}
 
-        const data = await response.json();
+const data = await response.json();
 
         // Перевірка на блокування безпеки
         if (data.promptFeedback && data.promptFeedback.blockReason) {
