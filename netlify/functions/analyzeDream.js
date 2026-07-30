@@ -64,6 +64,7 @@ exports.handler = async function(event, context) {
         };
 
     } catch (error) {
+        console.error("ДЕТАЛІ ПОМИЛКИ:", error);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: "Помилка сервера при обробці запиту." })
