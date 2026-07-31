@@ -141,7 +141,19 @@ function saveAsPdf() {
     window.print();
     document.title = originalTitle;
 }
+window.onTelegramAuth = function(user) {
+    // Створюємо об'єкт користувача, щоб система сайту його зрозуміла
+    window.currentUser = {
+        uid: user.id.toString(), // Використовуємо ID Telegram як унікальний ідентифікатор
+        displayName: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+        telegramId: user.id.toString()
+    };
 
+    // Оновлюємо інтерфейс: ховаємо кнопки і показуємо ім'я
+    document.getElementById('auth-section').innerHTML = '<p id="userInfo" style="font-weight: bold; margin-top: 10px;">✅ Ви увійшли через Telegram як: ' + window.currentUser.displayName + '</p>';
+    
+    console.log("Успішний вхід через Telegram:", user);
+};
 // Оновлена функція, яка стукає у ваш захищений бекенд Netlify Functions
 async function triggerAiPremium() {
     const rawText = document.getElementById('dreamText').value;
@@ -160,7 +172,15 @@ async function triggerAiPremium() {
 
 // 🌟 1. СТВОРЮЄМО СПИСОК АДМІНІСТРАТОРІВ
     const adminEmails = ["valerimilka@gmail.com"]; 
-    const isAdmin = adminEmails.includes(window.currentUser.email);
+    const adminTelegramIDs = ["8046369329"]; 
+
+    let isAdmin = false;
+    if (window.currentUser && window.currentUser.email && adminEmails.includes(window.currentUser.email)) {
+        isAdmin = true;
+    }
+    if (window.currentUser && window.currentUser.telegramId && adminTelegramIDs.includes(window.currentUser.telegramId)) {
+        isAdmin = true;
+    }
 
     let remainingDreams = 3;
     if (userSnap.exists() && userSnap.data().dreamsLeft !== undefined) {
