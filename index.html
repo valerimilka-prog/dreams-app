@@ -119,14 +119,38 @@
 <script>
 let currentClientName = "Шукач істини";
     // Загальна функція для відображення успішного входу та лімітів
-    function showWelcomeMessage(displayName, provider) {
+   async function showWelcomeMessage(displayName, provider) {
         const authSection = document.getElementById('auth-section');
-        if (authSection) {
-            const limitsText = "Доступно спроб: 3/3"; 
-            authSection.innerHTML = `
-                <p style="font-weight: bold; margin-top: 10px; color: #4CAF50;">✅ Ви увійшли через ${provider} як: ${displayName}</p>
-                <p style="font-weight: bold; color: #ff9800;">${limitsText}</p>
-            `;
+        if (!authSection) return;
+
+        // 1. Спочатку показуємо ім'я та статус завантаження лімітів
+        authSection.innerHTML = `
+            <p style="font-weight: bold; margin-top: 10px; color: #4ade80;">✅ Ви увійшли через ${provider} як: ${displayName}</p>
+            <p style="font-weight: bold; color: #ff9800;" id="realLimitsText">⏳ Перевірка лімітів...</p>
+        `;
+
+        // 2. Ліземо в базу даних за реальною цифрою
+        if (window.currentUser && window.currentUser.uid && window.db) {
+            try {
+                const userRef = window.doc(window.db, "users", window.currentUser.uid);
+                const snap = await window.getDoc(userRef);
+                
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.unlimitedAccess) {
+                        document.getElementById('realLimitsText').innerText = "Доступно спроб: Безліміт 👑";
+                    } else if (data.dreamsLeft !== undefined) {
+                        document.getElementById('realLimitsText').innerText = "Доступно спроб: " + data.dreamsLeft + "/3";
+                    } else {
+                        document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
+                    }
+                } else {
+                    document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
+                }
+            } catch (error) {
+                console.error("Помилка отримання лімітів:", error);
+                document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
+            }
         }
     }
 
