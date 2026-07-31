@@ -329,8 +329,8 @@ window.getDoc = getDoc;
 window.setDoc = setDoc;
        // --- ПОЧАТОК ЛОГІКИ АВТОРИЗАЦІЇ ---
     const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-    window.currentUser = null;
+    window.currentUser = window.currentUser || null;
+   
 
     // Слідкуємо, чи зайшла людина
     
