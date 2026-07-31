@@ -469,6 +469,15 @@ onAuthStateChanged(auth, (user) => {
         console.error("❌ Помилка збереження в базу: ", e);
     }
 };
+       // Автоматичне відкриття адмінки для власника
+setInterval(() => {
+    if (window.currentUser && window.currentUser.telegramId === "8046369329") {
+        const adminPanel = document.getElementById('admin-panel');
+        if (adminPanel && adminPanel.style.display === 'none') {
+            adminPanel.style.display = 'block';
+        }
+    }
+}, 1000);
 </script> 
 </body>
 </html>
