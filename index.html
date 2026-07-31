@@ -186,7 +186,7 @@ async function triggerAiPremium() {
     if (userSnap.exists() && userSnap.data().dreamsLeft !== undefined) {
         remainingDreams = userSnap.data().dreamsLeft;
     }
-
+    
     // 🌟 2. ПЕРЕВІРКА: Якщо це НЕ адмін і спроби закінчилися - блокуємо
     if (!isAdmin && remainingDreams <= 0) {
         alert("Ви використали всі 3 безкоштовні спроби на цей місяць!");
