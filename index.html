@@ -154,7 +154,7 @@ let currentClientName = "Шукач істини";
                          // Показуємо адмінку ТІЛЬКИ власнику (перевірка за ID), а не всім VIP-користувачам
 const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
 const webId = window.currentUser?.telegramId || window.currentUser?.uid;
-if (tgId === "8046369329" || webId === "8046369329") {
+if (tgId === "8046369329" || webId === "8046369329")|| webId === "QQnCu8t9vkea5eiwsSmvWJhCBQ43") {
     document.getElementById('admin-panel').style.display = 'block';
 }
                         } else if (data.dreamsLeft !== undefined) {
