@@ -151,7 +151,12 @@ let currentClientName = "Шукач істини";
                         const data = snap.data();
                         if (data.unlimitedAccess) {
                             document.getElementById('realLimitsText').innerText = "Доступно спроб: Безліміт 👑";
-                            document.getElementById('admin-panel').style.display = 'block';
+                         // Показуємо адмінку ТІЛЬКИ власнику (перевірка за ID), а не всім VIP-користувачам
+const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+const webId = window.currentUser?.telegramId || window.currentUser?.uid;
+if (tgId === "8046369329" || webId === "8046369329") {
+    document.getElementById('admin-panel').style.display = 'block';
+}
                         } else if (data.dreamsLeft !== undefined) {
                             document.getElementById('realLimitsText').innerText = "Доступно спроб: " + data.dreamsLeft + "/3";
                         } else {
