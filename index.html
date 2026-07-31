@@ -111,7 +111,7 @@
     <p id="userInfo" style="font-weight: bold; margin-top: 10px;"></p>
 </div>
     <!-- Секретна адмін-панель (показується тільки адмінам) -->
-<div id="admin-panel" style="display: block; background: #2a2a35; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px solid #ff9800;">
+<div id="admin-panel" style="display: none; background: #2a2a35; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px solid #ff9800;">
     <h3 style="color: #ff9800; margin-top: 0;">👑 Панель Адміністратора</h3>
     <p style="font-size: 14px; margin-bottom: 10px; color: #ccc;">Введіть Telegram ID користувача:</p>
     <input type="text" id="targetUserId" placeholder="Наприклад: 123456789" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; background: #1e1e26; color: white;">
@@ -151,6 +151,7 @@ let currentClientName = "Шукач істини";
                         const data = snap.data();
                         if (data.unlimitedAccess) {
                             document.getElementById('realLimitsText').innerText = "Доступно спроб: Безліміт 👑";
+                            document.getElementById('admin-panel').style.display = 'block';
                         } else if (data.dreamsLeft !== undefined) {
                             document.getElementById('realLimitsText').innerText = "Доступно спроб: " + data.dreamsLeft + "/3";
                         } else {
