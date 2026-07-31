@@ -228,20 +228,31 @@ async function triggerAiPremium() {
         return;
     }
 
-    // 🌟 3. ЗБЕРЕЖЕННЯ: Зменшуємо лічильник тільки якщо це НЕ адмін
-    if (!isAdmin) {
-        await window.setDoc(userRef, {
-            email: window.currentUser.email,
-            dreamsLeft: remainingDreams - 1
-        }, { merge: true });
-    } else {
-        // Для адміна просто оновлюємо дані в базі (щоб система бачила, що ти активний)
-        await window.setDoc(userRef, {
-            email: window.currentUser.email,
-            role: "admin",
-            unlimitedAccess: true
-        }, { merge: true });
-    }
+    // 🌟 3. ЗБЕРЕЖЕННЯ: Зменшуємо лічильник та записуємо дані (хто це був)
+let userDataToSave = {
+    displayName: window.currentUser.displayName || "Невідомий користувач",
+    authProvider: window.currentUser.authProvider || "google"
+};
+
+// Записуємо пошту, якщо це Google
+if (window.currentUser.email) {
+    userDataToSave.email = window.currentUser.email;
+}
+// Записуємо Telegram ID, якщо це Telegram
+if (window.currentUser.telegramId) {
+    userDataToSave.telegramId = window.currentUser.telegramId;
+}
+
+if (!isAdmin) {
+    // Для звичайної людини віднімаємо спробу
+    userDataToSave.dreamsLeft = remainingDreams - 1;
+    await window.setDoc(userRef, userDataToSave, { merge: true });
+} else {
+    // Для адміна даємо безліміт
+    userDataToSave.role = "admin";
+    userDataToSave.unlimitedAccess = true;
+    await window.setDoc(userRef, userDataToSave, { merge: true });
+}
     if(!text) { alert("Будь ласка, опишіть сон для аналізу."); return; }
 
     const btn = document.querySelector('.btn-premium');
