@@ -105,15 +105,48 @@
 
 <div id="auth-section" style="margin-bottom: 20px; text-align: center;">
     <button id="loginBtn" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px;">Увійти через Google</button>
-    <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="my_dreams_analysis_bot" data-size="large" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
+    
     <p id="userInfo" style="font-weight: bold; margin-top: 10px;"></p>
 </div>
     
     <button id="pdfBtn" class="btn-pdf" onclick="saveAsPdf()">Зберегти розбір у PDF 📥</button>
 </div>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
 <script>
 let currentClientName = "Шукач істини";
+    // Загальна функція для відображення успішного входу та лімітів
+    function showWelcomeMessage(displayName, provider) {
+        const authSection = document.getElementById('auth-section');
+        if (authSection) {
+            const limitsText = "Доступно спроб: 3/3"; 
+            authSection.innerHTML = `
+                <p style="font-weight: bold; margin-top: 10px; color: #4CAF50;">✅ Ви увійшли через ${provider} як: ${displayName}</p>
+                <p style="font-weight: bold; color: #ff9800;">${limitsText}</p>
+            `;
+        }
+    }
+
+    // Автоматична авторизація, якщо відкрито через Telegram-бота
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.ready(); 
+
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            
+            window.currentUser = {
+                uid: user.id.toString(),
+                displayName: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                telegramId: user.id.toString(),
+                authProvider: 'telegram'
+            };
+
+            // Одразу ховаємо кнопки і показуємо привітання
+            showWelcomeMessage(window.currentUser.displayName, 'Telegram');
+        }
+    }
 
 function sanitizeDreamText(text) {
     if (!text) return "";
