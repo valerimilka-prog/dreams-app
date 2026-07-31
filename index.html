@@ -110,6 +110,17 @@
 </button>
     <p id="userInfo" style="font-weight: bold; margin-top: 10px;"></p>
 </div>
+    <!-- Секретна адмін-панель (показується тільки адмінам) -->
+<div id="admin-panel" style="display: none; background: #2a2a35; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px solid #ff9800;">
+    <h3 style="color: #ff9800; margin-top: 0;">👑 Панель Адміністратора</h3>
+    <p style="font-size: 14px; margin-bottom: 10px; color: #ccc;">Введіть Telegram ID користувача:</p>
+    <input type="text" id="targetUserId" placeholder="Наприклад: 123456789" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: none; background: #1e1e26; color: white;">
+    <div style="display: flex; gap: 10px;">
+        <button onclick="grantVip()" style="flex: 1; padding: 10px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">Дати Безліміт</button>
+        <button onclick="revokeVip()" style="flex: 1; padding: 10px; background: #f44336; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">Забрати</button>
+    </div>
+    <p id="adminMessage" style="margin-top: 10px; font-weight: bold; font-size: 14px; text-align: center;"></p>
+</div>
     
     <button id="pdfBtn" class="btn-pdf" onclick="saveAsPdf()">Зберегти розбір у PDF 📥</button>
 </div>
@@ -197,7 +208,61 @@ function sanitizeDreamText(text) {
     cleanText = cleanText.replace(/секс[а-яіїєґ]*/gi, 'інтимний контакт');
     return cleanText;
 }
+// Функції для адмін-панелі
+async function grantVip() {
+    const targetId = document.getElementById('targetUserId').value.trim();
+    const msgEl = document.getElementById('adminMessage');
+    
+    if (!targetId) {
+        msgEl.innerText = "❌ Введіть Telegram ID!";
+        msgEl.style.color = "#f44336";
+        return;
+    }
+    
+    try {
+        msgEl.innerText = "⏳ Обробка...";
+        msgEl.style.color = "#ff9800";
+        
+        const targetRef = window.doc(window.db, "users", targetId);
+        await window.setDoc(targetRef, { unlimitedAccess: true }, { merge: true });
+        
+        msgEl.innerText = "✅ Безліміт надано для: " + targetId;
+        msgEl.style.color = "#4ade80";
+        document.getElementById('targetUserId').value = ""; // Очищаємо поле
+    } catch (error) {
+        console.error("Помилка:", error);
+        msgEl.innerText = "❌ Помилка бази даних!";
+        msgEl.style.color = "#f44336";
+    }
+}
 
+async function revokeVip() {
+    const targetId = document.getElementById('targetUserId').value.trim();
+    const msgEl = document.getElementById('adminMessage');
+    
+    if (!targetId) {
+        msgEl.innerText = "❌ Введіть Telegram ID!";
+        msgEl.style.color = "#f44336";
+        return;
+    }
+    
+    try {
+        msgEl.innerText = "⏳ Обробка...";
+        msgEl.style.color = "#ff9800";
+        
+        const targetRef = window.doc(window.db, "users", targetId);
+        await window.setDoc(targetRef, { unlimitedAccess: false }, { merge: true });
+        
+        msgEl.innerText = "⛔ Безліміт скасовано для: " + targetId;
+        msgEl.style.color = "#f44336";
+        document.getElementById('targetUserId').value = ""; // Очищаємо поле
+    } catch (error) {
+        console.error("Помилка:", error);
+        msgEl.innerText = "❌ Помилка бази даних!";
+        msgEl.style.color = "#f44336";
+    }
+}
+    
 function saveAsPdf() {
     const date = new Date().toLocaleDateString('uk-UA').replace(/\./g, '-');
     const originalTitle = document.title;
@@ -216,6 +281,11 @@ window.onTelegramAuth = function(user) {
     
     // Викликаємо нашу розумну функцію оновлення інтерфейсу!
     showWelcomeMessage(user.first_name, 'Telegram');
+    // Перевіряємо, чи є користувач адміном, і показуємо адмін-панель
+    if (typeof adminTelegramIDs !== 'undefined' && adminTelegramIDs.includes(user.id.toString())) {
+        const adminPanel = document.getElementById('admin-panel');
+        if (adminPanel) adminPanel.style.display = 'block';
+    }
     
     console.log("Успішний вхід через Telegram:", user);
 };
