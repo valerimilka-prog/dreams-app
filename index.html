@@ -339,13 +339,15 @@ onAuthStateChanged(auth, (user) => {
                 window.currentUser = user; // Запам'ятовуємо користувача
                 showWelcomeMessage(user.displayName, 'Google');
             } else {
-                window.currentUser = null;
-                const loginBtn = document.getElementById('loginBtn');
-                if (loginBtn) loginBtn.style.display = 'inline-block';
-                const userInfo = document.getElementById('userInfo');
-                if (userInfo) userInfo.innerText = "";
+                // Перевіряємо: якщо людина вже зайшла через Telegram, НЕ затираємо її дані!
+                if (!(window.currentUser && window.currentUser.authProvider === 'telegram')) {
+                    window.currentUser = null;
+                    const loginBtn = document.getElementById('loginBtn');
+                    if (loginBtn) loginBtn.style.display = 'inline-block';
+                    const userInfo = document.getElementById('userInfo');
+                    if (userInfo) userInfo.innerText = "";
+                }
             }
-        });
     // Дія при натисканні на кнопку входу
     document.getElementById('loginBtn').addEventListener('click', () => {
         signInWithPopup(auth, provider).catch((error) => {
