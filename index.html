@@ -322,18 +322,19 @@ window.setDoc = setDoc;
     window.currentUser = null;
 
     // Слідкуємо, чи зайшла людина
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            window.currentUser = user; // Запам'ятовуємо користувача
-            document.getElementById('loginBtn').style.display = 'none'; // Ховаємо кнопку входу
-            document.getElementById('userInfo').innerText = "✅ Ви увійшли як: " + user.displayName;
-        } else {
-            window.currentUser = null;
-            document.getElementById('loginBtn').style.display = 'inline-block';
-            document.getElementById('userInfo').innerText = "";
-        }
-    });
-
+    
+onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.currentUser = user; // Запам'ятовуємо користувача
+                showWelcomeMessage(user.displayName, 'Google');
+            } else {
+                window.currentUser = null;
+                const loginBtn = document.getElementById('loginBtn');
+                if (loginBtn) loginBtn.style.display = 'inline-block';
+                const userInfo = document.getElementById('userInfo');
+                if (userInfo) userInfo.innerText = "";
+            }
+        });
     // Дія при натисканні на кнопку входу
     document.getElementById('loginBtn').addEventListener('click', () => {
         signInWithPopup(auth, provider).catch((error) => {
