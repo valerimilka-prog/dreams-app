@@ -157,21 +157,35 @@ async function triggerAiPremium() {
     const userRef = window.doc(db, "users", window.currentUser.uid);
     const userSnap = await window. getDoc(userRef);
 
+// 🌟 1. СТВОРЮЄМО СПИСОК АДМІНІСТРАТОРІВ
+    const adminEmails = ["valerimilka@gmail.com"]; 
+    const isAdmin = adminEmails.includes(window.currentUser.email);
+
     let remainingDreams = 3;
     if (userSnap.exists() && userSnap.data().dreamsLeft !== undefined) {
         remainingDreams = userSnap.data().dreamsLeft;
     }
 
-    if (remainingDreams <= 0) {
+    // 🌟 2. ПЕРЕВІРКА: Якщо це НЕ адмін і спроби закінчилися - блокуємо
+    if (!isAdmin && remainingDreams <= 0) {
         alert("Ви використали всі 3 безкоштовні спроби на цей місяць!");
         return;
     }
 
-    // Зменшуємо лічильник на 1
-    await window. setDoc(userRef, {
-        email: window.currentUser.email,
-        dreamsLeft: remainingDreams - 1
-    }, { merge: true });
+    // 🌟 3. ЗБЕРЕЖЕННЯ: Зменшуємо лічильник тільки якщо це НЕ адмін
+    if (!isAdmin) {
+        await window.setDoc(userRef, {
+            email: window.currentUser.email,
+            dreamsLeft: remainingDreams - 1
+        }, { merge: true });
+    } else {
+        // Для адміна просто оновлюємо дані в базі (щоб система бачила, що ти активний)
+        await window.setDoc(userRef, {
+            email: window.currentUser.email,
+            role: "admin",
+            unlimitedAccess: true
+        }, { merge: true });
+    }
     if(!text) { alert("Будь ласка, опишіть сон для аналізу."); return; }
 
     const btn = document.querySelector('.btn-premium');
