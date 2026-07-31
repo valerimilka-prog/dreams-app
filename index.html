@@ -348,6 +348,7 @@ onAuthStateChanged(auth, (user) => {
                     if (userInfo) userInfo.innerText = "";
                 }
             }
+});
     // Дія при натисканні на кнопку входу
     document.getElementById('loginBtn').addEventListener('click', () => {
         signInWithPopup(auth, provider).catch((error) => {
