@@ -470,30 +470,7 @@ onAuthStateChanged(auth, (user) => {
         console.error("❌ Помилка збереження в базу: ", e);
     }
 };
-  // Автоматичне відкриття адмінки (Посилена версія)
-setInterval(() => {
-    let isAdmin = false;
-    
-    // 1. Беремо ID напряму з ядра Телеграму (працює 100% в Міні-аппі)
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-        if (window.Telegram.WebApp.initDataUnsafe.user.id.toString() === "8046369329") {
-            isAdmin = true;
-        }
-    }
-    
-    // 2. Резервна перевірка через нашу змінну
-    if (window.currentUser && (window.currentUser.telegramId === "8046369329" || window.currentUser.uid === "8046369329")) {
-        isAdmin = true;
-    }
 
-    // Якщо це ти - відкриваємо панель!
-    if (isAdmin) {
-        const adminPanel = document.getElementById('admin-panel');
-        if (adminPanel && adminPanel.style.display === 'none') {
-            adminPanel.style.display = 'block';
-        }
-    }
-}, 1000);
 </script> 
 </body>
 </html>
