@@ -119,39 +119,44 @@
 <script>
 let currentClientName = "Шукач істини";
     // Загальна функція для відображення успішного входу та лімітів
-   async function showWelcomeMessage(displayName, provider) {
+  function showWelcomeMessage(displayName, provider) {
         const authSection = document.getElementById('auth-section');
         if (!authSection) return;
 
-        // 1. Спочатку показуємо ім'я та статус завантаження лімітів
+        // 1. Показуємо ім'я та статус
         authSection.innerHTML = `
             <p style="font-weight: bold; margin-top: 10px; color: #4ade80;">✅ Ви увійшли через ${provider} як: ${displayName}</p>
             <p style="font-weight: bold; color: #ff9800;" id="realLimitsText">⏳ Перевірка лімітів...</p>
         `;
 
-        // 2. Ліземо в базу даних за реальною цифрою
-        if (window.currentUser && window.currentUser.uid && window.db) {
-            try {
-                const userRef = window.doc(window.db, "users", window.currentUser.uid);
-                const snap = await window.getDoc(userRef);
-                
-                if (snap.exists()) {
-                    const data = snap.data();
-                    if (data.unlimitedAccess) {
-                        document.getElementById('realLimitsText').innerText = "Доступно спроб: Безліміт 👑";
-                    } else if (data.dreamsLeft !== undefined) {
-                        document.getElementById('realLimitsText').innerText = "Доступно спроб: " + data.dreamsLeft + "/3";
+        // 2. Даємо базі даних 1 секунду на завантаження, а потім перевіряємо
+        setTimeout(async () => {
+            if (window.currentUser && window.currentUser.uid && window.db) {
+                try {
+                    const userRef = window.doc(window.db, "users", window.currentUser.uid);
+                    const snap = await window.getDoc(userRef);
+                    
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        if (data.unlimitedAccess) {
+                            document.getElementById('realLimitsText').innerText = "Доступно спроб: Безліміт 👑";
+                        } else if (data.dreamsLeft !== undefined) {
+                            document.getElementById('realLimitsText').innerText = "Доступно спроб: " + data.dreamsLeft + "/3";
+                        } else {
+                            document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
+                        }
                     } else {
                         document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
                     }
-                } else {
+                } catch (error) {
+                    console.error("Помилка:", error);
                     document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
                 }
-            } catch (error) {
-                console.error("Помилка отримання лімітів:", error);
+            } else {
+                // Якщо база так і не підключилася
                 document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
             }
-        }
+        }, 1000); // 1000 мілісекунд = 1 секунда очікування
     }
 
     // Автоматична авторизація, якщо відкрито через Telegram-бота
@@ -203,13 +208,14 @@ function saveAsPdf() {
 window.onTelegramAuth = function(user) {
     // Створюємо об'єкт користувача, щоб система сайту його зрозуміла
     window.currentUser = {
-        uid: user.id.toString(), // Використовуємо ID Telegram як унікальний ідентифікатор
+        uid: user.id.toString(),
         displayName: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-        telegramId: user.id.toString()
+        telegramId: user.id.toString(),
+        authProvider: 'telegram'
     };
-
-    // Оновлюємо інтерфейс: ховаємо кнопки і показуємо ім'я
-    document.getElementById('auth-section').innerHTML = '<p id="userInfo" style="font-weight: bold; margin-top: 10px;">✅ Ви увійшли через Telegram як: ' + window.currentUser.displayName + '</p>';
+    
+    // Викликаємо нашу розумну функцію оновлення інтерфейсу!
+    showWelcomeMessage(user.first_name, 'Telegram');
     
     console.log("Успішний вхід через Telegram:", user);
 };
