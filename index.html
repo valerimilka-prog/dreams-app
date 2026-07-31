@@ -340,7 +340,7 @@ onAuthStateChanged(auth, (user) => {
                 showWelcomeMessage(user.displayName, 'Google');
             } else {
                 // Перевіряємо: якщо людина вже зайшла через Telegram, НЕ затираємо її дані!
-                if (!(window.currentUser && window.currentUser.authProvider === 'telegram')) {
+                if (!(window.currentUser && window.currentUser.telegramId)) {
                     window.currentUser = null;
                     const loginBtn = document.getElementById('loginBtn');
                     if (loginBtn) loginBtn.style.display = 'inline-block';
