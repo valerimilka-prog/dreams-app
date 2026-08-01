@@ -33,33 +33,36 @@
         textarea { resize: vertical; height: 120px; }
         .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 35px; }
         }/* Загальний стиль для всіх кнопок */
+/* Оновлений стиль для кнопок: заокруглені, відцентровані, однакові за висотою */
 button {
-    width: 100%; /* Залишаємо на всю ширину - це зручно для пальця на телефоні */
-    padding: 15px;
-    margin-bottom: 15px; /* Відступ знизу! Кнопки більше не будуть злипатися */
-    background-color: #1a1c23; /* Трохи світліший за загальний фон */
-    color: #d4af37; /* Золотий колір тексту */
-    border: 1px solid #d4af37; /* Тонка золота рамка */
-    border-radius: 8px; /* М'які заокруглені кути */
+    width: 80%; /* Зменшуємо ширину (не на весь екран) */
+    margin: 0 auto 15px auto; /* Центруємо по горизонталі і робимо відступ знизу */
+    display: block; /* Важливо для центрування */
+    min-height: 55px; /* Усі кнопки (Google, Telegram, Розшифровка) будуть однакової висоти */
+    padding: 10px 20px;
+    background-color: #1a1c23;
+    color: #d4af37;
+    border: 1px solid #d4af37;
+    border-radius: 30px; /* Сильне заокруглення (овальна форма) */
     font-size: 16px;
     font-weight: bold;
     font-family: 'Georgia', serif;
     cursor: pointer;
-    transition: all 0.3s ease; /* Плавний перехід для анімацій */
-    box-sizing: border-box; /* Щоб кнопки не вилазили за краї екрана */
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
-/* Ефект при НАВЕДЕННІ мишки (світіння) */
+/* Ефект при НАВЕДЕННІ мишки (світіння залишається) */
 button:hover {
-    background-color: #d4af37; /* Кнопка стає повністю золотою */
-    color: #12131a; /* Текст стає темним для контрасту */
-    box-shadow: 0 0 15px rgba(212, 175, 55, 0.6); /* Золоте світіння навколо */
+    background-color: #d4af37;
+    color: #12131a;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
 }
 
-/* Ефект при НАТИСКАННІ (клік) */
+/* Ефект при НАТИСКАННІ */
 button:active {
-    transform: scale(0.97); /* Кнопка візуально "протискається" всередину */
-    box-shadow: 0 0 5px rgba(212, 175, 55, 0.3); /* Світіння зменшується */
+    transform: scale(0.97);
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
 }
         .btn-premium { background: linear-gradient(135deg, #8c6239 0%, #543d2b 100%); color: #fff; box-shadow: 0 4px 15px rgba(140, 98, 57, 0.3); }
         .btn-pdf { background: #1a233a; color: #58a6ff; border: 1px solid #243b66; margin-top: 20px; display: none; }
