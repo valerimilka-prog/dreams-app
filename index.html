@@ -64,7 +64,7 @@ button:active {
     transform: scale(0.97);
     box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
 }
-        .btn-premium { background: linear-gradient(135deg, #8c6239 0%, #543d2b 100%); color: #fff; box-shadow: 0 4px 15px rgba(140, 98, 57, 0.3); border-radius: 30px; width: 80%; margin: 0 auto 15px auto; display: block; min-height: 55px; }
+        .btn-premium { background: linear-gradient(135deg, #8c6239 0%, #543d2b 100%); color: #d4af37; font-size: 18px; font-family: 'Georgia', serif; box-shadow: 0 4px 15px rgba(140, 98, 57, 0.3); border-radius: 30px; width: 80%; margin: 0 auto 15px auto; display: block; min-height: 55px; }
         .btn-pdf { background: #1a233a; color: #58a6ff; border: 1px solid #243b66; margin-top: 20px; display: none; }
         .result-box { margin-top: 40px; padding: 30px; background: #181920; border-radius: 12px; border: 1px solid #3a3227; position: relative; display: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); }
         .result-box::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #8c6239, #d4af37, #8c6239); border-top-left-radius: 12px; border-top-right-radius: 12px; }
@@ -499,6 +499,7 @@ onAuthStateChanged(auth, (user) => {
 });
     // Дія при натисканні на кнопку входу
     document.getElementById('loginBtn').addEventListener('click', () => {
+        const provider = new GoogleAuthProvider();
         signInWithPopup(auth, provider).catch((error) => {
             console.error("Помилка входу: ", error);
         });
