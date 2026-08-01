@@ -227,51 +227,42 @@ let currentClientName = "Шукач істини";
         // 2. Даємо базі даних 1 секунду на завантаження, а потім перевіряємо
         setTimeout(async () => {
             if (window.currentUser && window.currentUser.uid && window.db) {
-                try {
-                    const userRef = window.doc(window.db, "users", window.currentUser.uid);
-                    const snap = await window.getDoc(userRef);
-                    
-                    if (snap.exists()) {
-                        const data = snap.data();
-                        if (data.unlimitedAccess) {
-                            document.getElementById('realLimitsText').innerText = "Доступно спроб: Безліміт 👑";
-                         // Показуємо адмінку ТІЛЬКИ власнику (перевірка за ID), а не всім VIP-користувачам
-const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
-const webId = window.currentUser?.telegramId || window.currentUser?.uid;
-if (tgId === "8046369329" || webId === "8046369329"|| webId === "QQnCu8t9vkea5eiwsSmvWJhCBQ43") {
-    document.getElementById('admin-panel').style.display = 'block';
-}
-          } else if (data.dreamsLeft !== undefined) {
-        if (data.dreamsLeft > 0) {
-            document.getElementById('realLimitsText').innerHTML = "Доступно спроб: " + data.dreamsLeft;
-        } else {
-            document.getElementById('realLimitsText').innerHTML = `
-                <div style="margin-top: 10px; padding: 12px; background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; border-radius: 8px; text-align: center;">
-                    <div style="font-weight: bold; color: #d4af37; margin-bottom: 6px;">Спроби закінчилися</div>
-                    <div style="font-size: 13px; color: #ccc; margin-bottom: 10px;">Оновіть доступ, щоб продовжувати розбори снів.</div>
-                    <button onclick="openCheckoutModal()" style="background: linear-gradient(135deg, #8c6239 0%, #d4af37 100%); color: #12131a; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Переглянути тарифи</button>
-                </div>
-            `;
-        }
-    } else {
-        document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
-    }
-            // Якщо спроб 0, виводимо кнопку виклику тарифів
-            document.getElementById('realLimitsText').innerHTML = `
-                <div style="margin-top: 10px; padding: 12px; background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; border-radius: 8px; text-align: center;">
-                    <div style="font-weight: bold; color: #d4af37; margin-bottom: 6px;">Спроби закінчилися</div>
-                    <div style="font-size: 13px; color: #ccc; margin-bottom: 10px;">Оновіть доступ, щоб продовжувати розбори снів.</div>
-                    <button onclick="openCheckoutModal()" style="background: linear-gradient(135deg, #8c6239 0%, #d4af37 100%); color: #12131a; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Переглянути тарифи</button>
-                </div>
-            `;
-        }
+    try {
+                const userRef = window.doc(window.db, "users", window.currentUser.uid);
+                const snap = await window.getDoc(userRef);
+
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.unlimitedAccess) {
+                        document.getElementById('realLimitsText').innerText = "Доступно спроб: Безліміт 👑";
+                        // Показуємо адмінку ТІЛЬКИ власнику (перевірка за ID)
+                        const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+                        const webId = window.currentUser?.telegramId || window.currentUser?.uid;
+                        if (tgId === "8046369329" || webId === "8046369329" || webId === "QQnCu8t9vkea5eiwsSmvWJhCBQ43") {
+                            document.getElementById('admin-panel').style.display = 'block';
+                        }
+                    } else if (data.dreamsLeft !== undefined) {
+                        if (data.dreamsLeft > 0) {
+                            document.getElementById('realLimitsText').innerHTML = "Доступно спроб: " + data.dreamsLeft;
+                        } else {
+                            document.getElementById('realLimitsText').innerHTML = `
+                                <div style="margin-top: 10px; padding: 12px; background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; border-radius: 8px; text-align: center;">
+                                    <div style="font-weight: bold; color: #d4af37; margin-bottom: 6px;">Спроби закінчилися</div>
+                                    <div style="font-size: 13px; color: #ccc; margin-bottom: 10px;">Оновіть доступ, щоб продовжувати розбори снів.</div>
+                                    <button onclick="openCheckoutModal()" style="background: linear-gradient(135deg, #8c6239 0%, #d4af37 100%); color: #12131a; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Переглянути тарифи</button>
+                                </div>
+                            `;
+                        }
                     } else {
                         document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
                     }
-                } catch (error) {
-                    console.error("Помилка:", error);
+                } else {
                     document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
                 }
+            } catch (error) {
+                console.error("Помилка:", error);
+                document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
+            }
             } else {
                 // Якщо база так і не підключилася
                 document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
