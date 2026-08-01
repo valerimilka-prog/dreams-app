@@ -241,11 +241,19 @@ const webId = window.currentUser?.telegramId || window.currentUser?.uid;
 if (tgId === "8046369329" || webId === "8046369329"|| webId === "QQnCu8t9vkea5eiwsSmvWJhCBQ43") {
     document.getElementById('admin-panel').style.display = 'block';
 }
-                        } else if (data.dreamsLeft !== undefined) {
-                            document.getElementById('realLimitsText').innerText = "Доступно спроб: " + data.dreamsLeft + "/3";
-                        } else {
-                            document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
-                        }
+                       } else if (data.dreamsLeft !== undefined) {
+        if (data.dreamsLeft > 0) {
+            document.getElementById('realLimitsText').innerHTML = "Доступно спроб: " + data.dreamsLeft;
+        } else {
+            // Якщо спроб 0, виводимо кнопку виклику тарифів
+            document.getElementById('realLimitsText').innerHTML = `
+                <div style="margin-top: 10px; padding: 12px; background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; border-radius: 8px; text-align: center;">
+                    <div style="font-weight: bold; color: #d4af37; margin-bottom: 6px;">Спроби закінчилися</div>
+                    <div style="font-size: 13px; color: #ccc; margin-bottom: 10px;">Оновіть доступ, щоб продовжувати розбори снів.</div>
+                    <button onclick="openCheckoutModal()" style="background: linear-gradient(135deg, #8c6239 0%, #d4af37 100%); color: #12131a; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Переглянути тарифи</button>
+                </div>
+            `;
+        }
                     } else {
                         document.getElementById('realLimitsText').innerText = "Доступно спроб: 3/3";
                     }
@@ -585,5 +593,44 @@ function showPaymentModal() {
     }
 }
 </script> 
+    <!-- Модальне вікно з тарифами -->
+<div id="checkoutModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: #12131a; padding: 20px; border-radius: 12px; border: 1px solid #d4af37; max-width: 90%; width: 320px; text-align: center;">
+        <h3 style="color: #d4af37; margin-top: 0; font-family: Georgia, serif;">Оберіть пакет</h3>
+        
+        <!-- Пакет 1 -->
+        <div style="margin: 15px 0; padding: 15px; border: 1px solid #444; border-radius: 8px;">
+            <div style="color: white; font-weight: bold; font-size: 16px;">1 глибокий розбір</div>
+            <div style="color: #d4af37; margin-top: 5px; font-weight: bold;">50 грн</div>
+            <button onclick="payPackage(1)" style="margin-top: 10px; width: 100%; background: #2a2a2a; color: white; border: 1px solid #d4af37; padding: 8px; border-radius: 5px; cursor: pointer;">Придбати</button>
+        </div>
+
+        <!-- Пакет 2 -->
+        <div style="margin: 15px 0; padding: 15px; border: 1px solid #444; border-radius: 8px;">
+            <div style="color: white; font-weight: bold; font-size: 16px;">3 глибокі розбори</div>
+            <div style="color: #d4af37; margin-top: 5px; font-weight: bold;">120 грн <span style="font-size: 12px; color: #888;">(вигідно)</span></div>
+            <button onclick="payPackage(3)" style="margin-top: 10px; width: 100%; background: #2a2a2a; color: white; border: 1px solid #d4af37; padding: 8px; border-radius: 5px; cursor: pointer;">Придбати</button>
+        </div>
+
+        <button onclick="closeCheckoutModal()" style="margin-top: 10px; background: transparent; color: #888; border: none; cursor: pointer; text-decoration: underline;">Скасувати</button>
+    </div>
+</div>
+
+<script>
+    // Функції для керування вікном оплат
+    function openCheckoutModal() {
+        document.getElementById('checkoutModal').style.display = 'flex';
+    }
+    
+    function closeCheckoutModal() {
+        document.getElementById('checkoutModal').style.display = 'none';
+    }
+    
+    function payPackage(attemptsAmount) {
+        // Тут буде перехід на платіжну систему
+        console.log("Користувач обрав пакет на " + attemptsAmount + " розборів");
+        alert("Тут буде перехід до оплати пакету на " + attemptsAmount + " розборів.");
+    }
+</script>
 </body>
 </html>
