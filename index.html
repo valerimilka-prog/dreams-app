@@ -32,7 +32,35 @@
         textarea:focus, input:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 8px rgba(212, 175, 55, 0.2); }
         textarea { resize: vertical; height: 120px; }
         .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 35px; }
-        button { width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-family: 'Georgia', serif; font-weight: bold; cursor: pointer; transition: all 0.3s ease; letter-spacing: 0.5px; }
+        }/* Загальний стиль для всіх кнопок */
+button {
+    width: 100%; /* Залишаємо на всю ширину - це зручно для пальця на телефоні */
+    padding: 15px;
+    margin-bottom: 15px; /* Відступ знизу! Кнопки більше не будуть злипатися */
+    background-color: #1a1c23; /* Трохи світліший за загальний фон */
+    color: #d4af37; /* Золотий колір тексту */
+    border: 1px solid #d4af37; /* Тонка золота рамка */
+    border-radius: 8px; /* М'які заокруглені кути */
+    font-size: 16px;
+    font-weight: bold;
+    font-family: 'Georgia', serif;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Плавний перехід для анімацій */
+    box-sizing: border-box; /* Щоб кнопки не вилазили за краї екрана */
+}
+
+/* Ефект при НАВЕДЕННІ мишки (світіння) */
+button:hover {
+    background-color: #d4af37; /* Кнопка стає повністю золотою */
+    color: #12131a; /* Текст стає темним для контрасту */
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.6); /* Золоте світіння навколо */
+}
+
+/* Ефект при НАТИСКАННІ (клік) */
+button:active {
+    transform: scale(0.97); /* Кнопка візуально "протискається" всередину */
+    box-shadow: 0 0 5px rgba(212, 175, 55, 0.3); /* Світіння зменшується */
+}
         .btn-premium { background: linear-gradient(135deg, #8c6239 0%, #543d2b 100%); color: #fff; box-shadow: 0 4px 15px rgba(140, 98, 57, 0.3); }
         .btn-pdf { background: #1a233a; color: #58a6ff; border: 1px solid #243b66; margin-top: 20px; display: none; }
         .result-box { margin-top: 40px; padding: 30px; background: #181920; border-radius: 12px; border: 1px solid #3a3227; position: relative; display: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); }
