@@ -227,21 +227,38 @@ let currentClientName = "Шукач істини";
         // 2. Даємо базі даних 1 секунду на завантаження, а потім перевіряємо
         setTimeout(async () => {
             if (window.currentUser && window.currentUser.uid && window.db) {
-    try {
+   try {
                 const userRef = window.doc(window.db, "users", window.currentUser.uid);
                 const snap = await window.getDoc(userRef);
 
                 if (snap.exists()) {
                     const data = snap.data();
-                    if (data.unlimitedAccess) {
+                    const now = new Date();
+                    
+                    // Перевірка дати закінчення безліміту
+                    let isSubActive = false;
+                    if (data.unlimitedUntil) {
+                        const untilDate = new Date(data.unlimitedUntil);
+                        // Підписка дійсна включно до кінця вказаного дня
+                        untilDate.setHours(23, 59, 59, 999);
+                        if (now <= untilDate) {
+                            isSubActive = true;
+                        }
+                    }
+
+                    // 1. Якщо активний безліміт або прапорець unlimitedAccess
+                    if (data.unlimitedAccess || isSubActive) {
                         document.getElementById('realLimitsText').innerText = "Доступно спроб: Безліміт 👑";
+                        
                         // Показуємо адмінку ТІЛЬКИ власнику (перевірка за ID)
                         const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
                         const webId = window.currentUser?.telegramId || window.currentUser?.uid;
                         if (tgId === "8046369329" || webId === "8046369329" || webId === "QQnCu8t9vkea5eiwsSmvWJhCBQ43") {
                             document.getElementById('admin-panel').style.display = 'block';
                         }
-                    } else if (data.dreamsLeft !== undefined) {
+                    } 
+                    // 2. Якщо безліміту немає — перевіряємо звичайні спроби
+                    else if (data.dreamsLeft !== undefined) {
                         if (data.dreamsLeft > 0) {
                             document.getElementById('realLimitsText').innerHTML = "Доступно спроб: " + data.dreamsLeft;
                         } else {
