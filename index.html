@@ -396,9 +396,10 @@ async function triggerAiPremium() {
     
     // 🌟 2. ПЕРЕВІРКА: Якщо це НЕ адмін і спроби закінчилися - блокуємо
     if (!isAdmin && remainingDreams <= 0) {
-        alert("Ви використали всі 3 безкоштовні спроби на цей місяць!");
-        return;
-    }
+    // Показуємо вікно з реквізитами картки
+    showPaymentModal();
+    return;
+}
 
     // 🌟 3. ЗБЕРЕЖЕННЯ: Зменшуємо лічильник та записуємо дані (хто це був)
 let userDataToSave = {
@@ -542,7 +543,29 @@ onAuthStateChanged(auth, (user) => {
         console.error("❌ Помилка збереження в базу: ", e);
     }
 };
-
+function showPaymentModal() {
+    // Створюємо елемент модального вікна, якщо його ще немає
+    let modal = document.getElementById('paymentModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'paymentModal';
+        modal.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:9999;";
+        modal.innerHTML = `
+            <div style="background:#12131a;border:1px solid #d4af37;padding:30px;border-radius:12px;max-width:400px;width:90%;text-align:center;color:#e5dcc5;font-family:Georgia,serif;">
+                <h3 style="color:#d4af37;margin-top:0;margin-bottom:15px;">Спроби вичерпано</h3>
+                <p style="font-size:14px;line-height:1.5;margin-bottom:20px;">Ви використали всі 3 безкоштовні розшифровки на цей місяць. Для продовження доступу перекажіть кошти на карту:</p>
+                <div style="background:#07080c;padding:12px;border:1px dashed #d4af37;border-radius:8px;font-size:16px;font-weight:bold;color:#d4af37;margin-bottom:20px;user-select:all;">
+                    0000 0000 0000 0000
+                </div>
+                <p style="font-size:13px;color:#a49685;margin-bottom:20px;">Після оплати надішліть скріншот у Telegram, і ми миттєво активуємо ваш безлімітний доступ!</p>
+                <button onclick="document.getElementById('paymentModal').style.display='none'" style="background:#d4af37;color:#12131a;border:none;padding:10px 20px;border-radius:6px;font-weight:bold;cursor:pointer;">Закрити</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } else {
+        modal.style.display = 'flex';
+    }
+}
 </script> 
 </body>
 </html>
