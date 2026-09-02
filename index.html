@@ -664,16 +664,20 @@ function showPaymentModal() {
         document.getElementById('checkoutModal').style.display = 'flex';
     }
     
-    function closeCheckoutModal() {
-        document.getElementById('checkoutModal').style.display = 'none';
-    }
-    
-    function payViaTelegram(packageName) {
-        // Замініть 'YOUR_TELEGRAM_USERNAME' на ваш особистий юзернейм в Телеграм (без @)
+   function payViaTelegram(packageName) {
         const adminUsername = "runes_valeriy"; 
-        const message = encodeURIComponent(`Вітаю! Я хочу придбати тариф: ${packageName}. Підкажіть реквізити для оплати.`);
         
-        // Відкриваємо чат із тобою прямо в Telegram
+        // Отримуємо Telegram ID поточного користувача
+        let telegramId = "Невідомо";
+        if (window.currentUser && window.currentUser.telegramId) {
+            telegramId = window.currentUser.telegramId;
+        } else if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user?.id) {
+            telegramId = window.Telegram.WebApp.initDataUnsafe.user.id;
+        }
+
+        // Формуємо текст разом з ID та ім'ям
+        const message = encodeURIComponent(`Вітаю! Я хочу придбати тариф: ${packageName}.\nМій Telegram ID: ${telegramId}\nПідкажіть реквізити для оплати.`);
+        
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.openTelegramLink(`https://t.me/${adminUsername}?text=${message}`);
         } else {
