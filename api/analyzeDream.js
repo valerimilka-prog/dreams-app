@@ -33,8 +33,8 @@ module.exports = async function(req, res) {
         // Робимо безпечний запит до Google Gemini з резервним копіюванням
         let response;
         try {
-            // Спроба 1: Основна модель 3.5 (твій оригінальний вибір)
-            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
+            // Спроба 1: Основна модель 3.6 (твій оригінальний вибір)
+            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
