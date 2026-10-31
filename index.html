@@ -312,7 +312,25 @@
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
       
-      html2pdf().set(opt).from(element).save().then(() => {
+      // Замість прямого .save(), генеруємо Blob для обходу блокування Телеграму
+      html2pdf().set(opt).from(element).output('blob').then(function(blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Аналіз_Сну_${currentClientName}.pdf`;
+          a.target = '_blank'; // Критично для телефонів (відкриває системне вікно)
+          document.body.appendChild(a);
+          a.click();
+          
+          setTimeout(() => {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+          }, 100);
+
+          btn.innerHTML = "Зберегти розбір у PDF 📥";
+          btn.disabled = false;
+      }).catch(function(err) {
+          alert("Помилка генерації PDF. Спробуйте ще раз.");
           btn.innerHTML = "Зберегти розбір у PDF 📥";
           btn.disabled = false;
       });
