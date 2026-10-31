@@ -149,7 +149,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  // ЗАМІНА: Використовуємо signInWithRedirect замість Popup
+  import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAS_uZEKojn8bGZZ5SNKSM18HejuA9a5lQ",
@@ -166,40 +167,46 @@
   const auth = getAuth(app);
   window.currentUser = null;
 
-  // Якщо людина вручну тисне "Увійти через Telegram" у браузері - перекидаємо в Бот-Хаб
+  // Виправлена кнопка Телеграм
   document.getElementById('tgLoginBtn').addEventListener('click', () => {
-      window.location.href = 'https://t.me/valeriy_hub_bot';
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+          window.Telegram.WebApp.showAlert("Дані не підтягнулися автоматично. Будь ласка, закрийте Сонник і відкрийте його заново через кнопку меню бота.");
+      } else {
+          window.location.href = 'https://t.me/valeriy_hub_bot';
+      }
   });
 
-  // Автоматичний вхід, якщо відкрито всередині Телеграму
-  if (window.Telegram && window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand();
-      
-      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-          const user = tg.initDataUnsafe.user;
-          window.currentUser = {
-              uid: user.id.toString(),
-              displayName: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-              telegramId: user.id.toString()
-          };
-          document.getElementById('login-buttons-wrapper').style.display = 'none';
-          checkLimitsAndWelcome(window.currentUser.displayName);
-      }
-  }
+  // Виправлена кнопка Google (Redirect замість Popup)
+  document.getElementById('loginBtn').addEventListener('click', () => {
+      signInWithRedirect(auth, new GoogleAuthProvider()).catch(console.error);
+  });
 
-  // Вхід через Google
+  // Додано затримку для надійної синхронізації з Telegram
+  setTimeout(() => {
+      if (window.Telegram && window.Telegram.WebApp) {
+          const tg = window.Telegram.WebApp;
+          tg.ready();
+          tg.expand();
+          
+          if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+              const user = tg.initDataUnsafe.user;
+              window.currentUser = {
+                  uid: user.id.toString(),
+                  displayName: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+                  telegramId: user.id.toString()
+              };
+              document.getElementById('login-buttons-wrapper').style.display = 'none';
+              checkLimitsAndWelcome(window.currentUser.displayName);
+          }
+      }
+  }, 200);
+
   onAuthStateChanged(auth, (user) => {
       if (user) {
-          window.currentUser = user; // Тут uid буде унікальним кодом Google
+          window.currentUser = user; 
           document.getElementById('login-buttons-wrapper').style.display = 'none';
           checkLimitsAndWelcome(user.displayName);
       }
-  });
-
-  document.getElementById('loginBtn').addEventListener('click', () => {
-      signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
   });
 
   async function checkLimitsAndWelcome(displayName) {
@@ -221,7 +228,6 @@
               const snap = await window.getDoc(userRef);
               
               const tgId = window.currentUser.telegramId || window.currentUser.uid;
-              // Показуємо адмінку тільки тобі
               if (tgId === "8046369329") {
                   document.getElementById('admin-panel').style.display = 'block';
               }
