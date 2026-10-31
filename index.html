@@ -53,11 +53,13 @@
 
     <!-- БЛОК АВТОРИЗАЦІЇ -->
     <div id="auth-section" style="margin-bottom: 20px; text-align: center;">
-        <div id="login-buttons-wrapper">
-            <button id="tgLoginBtn" style="padding: 10px 20px; background: #2AABEE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; max-width: 250px; margin: 0 auto 10px auto;">✈️ Увійти через Telegram</button>
+        <div id="login-buttons-wrapper" style="display: none;">
+            <button onclick="window.open('https://t.me/valeriy_hub_bot', '_blank')" style="padding: 10px 20px; background: #2AABEE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; max-width: 250px; margin: 0 auto 10px auto;">✈️ Відкрити в Telegram</button>
             <button id="loginBtn" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; max-width: 250px; margin: 0 auto;">Увійти через Google</button>
         </div>
-        <div id="auth-status-area"></div>
+        <div id="auth-status-area">
+            <p style="color: #ff9800; font-weight: bold;">⏳ Перевірка авторизації...</p>
+        </div>
     </div>
 
     <!-- АДМІН ПАНЕЛЬ -->
@@ -148,9 +150,9 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  // ЗАМІНА: Використовуємо signInWithRedirect замість Popup
-  import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  // Повертаємо надійний signInWithPopup
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAS_uZEKojn8bGZZ5SNKSM18HejuA9a5lQ",
@@ -167,47 +169,43 @@
   const auth = getAuth(app);
   window.currentUser = null;
 
-  // Виправлена кнопка Телеграм
-  document.getElementById('tgLoginBtn').addEventListener('click', () => {
-      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
-          window.Telegram.WebApp.showAlert("Дані не підтягнулися автоматично. Будь ласка, закрийте Сонник і відкрийте його заново через кнопку меню бота.");
-      } else {
-          window.location.href = 'https://t.me/valeriy_hub_bot';
-      }
-  });
+  const tg = window.Telegram ? window.Telegram.WebApp : null;
 
-  // Виправлена кнопка Google (Redirect замість Popup)
-  document.getElementById('loginBtn').addEventListener('click', () => {
-      signInWithRedirect(auth, new GoogleAuthProvider()).catch(console.error);
-  });
+  if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      // 1. АВТОМАТИЧНИЙ ВХІД ЧЕРЕЗ ТЕЛЕГРАМ
+      tg.ready();
+      tg.expand();
+      const user = tg.initDataUnsafe.user;
+      window.currentUser = {
+          uid: user.id.toString(),
+          displayName: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+          telegramId: user.id.toString()
+      };
+      document.getElementById('login-buttons-wrapper').style.display = 'none';
+      checkLimitsAndWelcome(window.currentUser.displayName);
+  } else {
+      // 2. ВХІД ЧЕРЕЗ ЗВИЧАЙНИЙ БРАУЗЕР (GOOGLE)
+      document.getElementById('login-buttons-wrapper').style.display = 'block';
+      document.getElementById('auth-status-area').innerHTML = '';
 
-  // Додано затримку для надійної синхронізації з Telegram
-  setTimeout(() => {
-      if (window.Telegram && window.Telegram.WebApp) {
-          const tg = window.Telegram.WebApp;
-          tg.ready();
-          tg.expand();
-          
-          if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-              const user = tg.initDataUnsafe.user;
+      onAuthStateChanged(auth, (user) => {
+          if (user) {
               window.currentUser = {
-                  uid: user.id.toString(),
-                  displayName: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-                  telegramId: user.id.toString()
+                  uid: user.uid,
+                  displayName: user.displayName,
+                  telegramId: null
               };
               document.getElementById('login-buttons-wrapper').style.display = 'none';
-              checkLimitsAndWelcome(window.currentUser.displayName);
+              checkLimitsAndWelcome(user.displayName);
           }
-      }
-  }, 200);
+      });
 
-  onAuthStateChanged(auth, (user) => {
-      if (user) {
-          window.currentUser = user; 
-          document.getElementById('login-buttons-wrapper').style.display = 'none';
-          checkLimitsAndWelcome(user.displayName);
-      }
-  });
+      document.getElementById('loginBtn').addEventListener('click', () => {
+          signInWithPopup(auth, new GoogleAuthProvider()).catch(error => {
+              alert("Помилка авторизації Google: " + error.message);
+          });
+      });
+  }
 
   async function checkLimitsAndWelcome(displayName) {
       const uidToShow = window.currentUser.uid;
@@ -222,44 +220,39 @@
           <p style="color: #ff9800; font-weight: bold;" id="realLimitsText">⏳ Перевірка лімітів...</p>
       `;
       
-      setTimeout(async () => {
-          if (window.currentUser && window.db) {
-              const userRef = window.doc(window.db, "users", window.currentUser.uid);
-              const snap = await window.getDoc(userRef);
-              
-              const tgId = window.currentUser.telegramId || window.currentUser.uid;
-              if (tgId === "8046369329") {
-                  document.getElementById('admin-panel').style.display = 'block';
-              }
+      if (window.currentUser.uid === "8046369329") {
+          document.getElementById('admin-panel').style.display = 'block';
+      }
 
-              if (snap.exists()) {
-                  const data = snap.data();
-                  const now = Date.now();
-                  
-                  let isUnlimitedDays = false;
-                  if (data.unlimitedUntil && now < data.unlimitedUntil) {
-                      isUnlimitedDays = true;
-                  }
+      try {
+          const userRef = window.doc(window.db, "users", window.currentUser.uid);
+          const snap = await window.getDoc(userRef);
 
-                  if (data.unlimitedAccess) {
-                      document.getElementById('realLimitsText').innerText = "Доступ: Безліміт назавжди 👑";
-                  } else if (isUnlimitedDays) {
-                      const untilDate = new Date(data.unlimitedUntil).toLocaleDateString('uk-UA');
-                      document.getElementById('realLimitsText').innerText = `Доступ: Безліміт до ${untilDate} ⏳`;
-                  } else if (data.dreamsLeft !== undefined) {
-                      if (data.dreamsLeft > 0) {
-                          document.getElementById('realLimitsText').innerText = "Доступно розборів: " + data.dreamsLeft;
-                      } else {
-                          document.getElementById('realLimitsText').innerHTML = `<span style="color:#f44336">Спроби вичерпано.</span> <button onclick="document.getElementById('checkoutModal').style.display='flex'" style="background:transparent; color:#d4af37; border:none; text-decoration:underline; font-size:14px; padding:0; min-height:0; width:auto; display:inline;">Оновити доступ</button>`;
-                      }
+          if (snap.exists()) {
+              const data = snap.data();
+              const now = Date.now();
+              let isUnlimitedDays = (data.unlimitedUntil && now < data.unlimitedUntil);
+
+              if (data.unlimitedAccess) {
+                  document.getElementById('realLimitsText').innerText = "Доступ: Безліміт назавжди 👑";
+              } else if (isUnlimitedDays) {
+                  const untilDate = new Date(data.unlimitedUntil).toLocaleDateString('uk-UA');
+                  document.getElementById('realLimitsText').innerText = `Доступ: Безліміт до ${untilDate} ⏳`;
+              } else if (data.dreamsLeft !== undefined) {
+                  if (data.dreamsLeft > 0) {
+                      document.getElementById('realLimitsText').innerText = "Доступно розборів: " + data.dreamsLeft;
                   } else {
-                      document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
+                      document.getElementById('realLimitsText').innerHTML = `<span style="color:#f44336">Спроби вичерпано.</span> <button onclick="document.getElementById('checkoutModal').style.display='flex'" style="background:transparent; color:#d4af37; border:none; text-decoration:underline; font-size:14px; padding:0; min-height:0; width:auto; display:inline;">Оновити доступ</button>`;
                   }
               } else {
                   document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
               }
+          } else {
+              document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
           }
-      }, 500);
+      } catch (e) {
+          console.error(e);
+      }
   }
 </script>
 
@@ -362,8 +355,7 @@ async function triggerAiPremium() {
         if(data.unlimitedUntil && Date.now() < data.unlimitedUntil) isUnlimited = true;
     }
     
-    const tgId = window.currentUser.telegramId || window.currentUser.uid;
-    const isAdmin = (tgId === "8046369329");
+    const isAdmin = (window.currentUser.uid === "8046369329");
 
     if (!isAdmin && !isUnlimited && remainingDreams <= 0) {
         document.getElementById('checkoutModal').style.display = 'flex';
@@ -415,9 +407,9 @@ async function triggerAiPremium() {
 }
 
 function payViaTelegram(packageName) {
-    const telegramId = window.currentUser?.telegramId || window.currentUser?.uid || "Невідомо";
+    const telegramId = window.currentUser?.uid || "Невідомо";
     const msg = encodeURIComponent(`Вітаю! Хочу тариф: ${packageName}.\nМій унікальний ID: ${telegramId}\nДайте реквізити для оплати.`);
-    if (window.Telegram && window.Telegram.WebApp) {
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
         window.Telegram.WebApp.openTelegramLink(`https://t.me/runes_valeriy?text=${msg}`);
     } else {
         window.open(`https://t.me/runes_valeriy?text=${msg}`);
