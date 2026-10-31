@@ -53,13 +53,11 @@
 
     <!-- БЛОК АВТОРИЗАЦІЇ -->
     <div id="auth-section" style="margin-bottom: 20px; text-align: center;">
-        <div id="login-buttons-wrapper" style="display: none;">
-            <button id="loginBtn" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; max-width: 250px; margin: 0 auto 10px auto;">Увійти через Google</button>
-            <p style="font-size: 13px; color: #888;">Або відкрийте це посилання через Telegram-бота.</p>
+        <div id="login-buttons-wrapper">
+            <button id="tgLoginBtn" style="padding: 10px 20px; background: #2AABEE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; max-width: 250px; margin: 0 auto 10px auto;">✈️ Увійти через Telegram</button>
+            <button id="loginBtn" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; max-width: 250px; margin: 0 auto;">Увійти через Google</button>
         </div>
-        <div id="auth-status-area">
-            <p style="color: #ff9800; font-weight: bold;">⏳ Синхронізація з Telegram...</p>
-        </div>
+        <div id="auth-status-area"></div>
     </div>
 
     <!-- АДМІН ПАНЕЛЬ -->
@@ -67,7 +65,7 @@
         <h3 style="color: #ff9800; margin-top: 0; text-align: center;">👑 Адмін Панель</h3>
         
         <div class="admin-input-group">
-            <input type="text" id="targetUserId" placeholder="Telegram ID клієнта">
+            <input type="text" id="targetUserId" placeholder="ID клієнта (з його екрана)">
             <input type="number" id="vipDays" placeholder="Днів (напр. 30)" style="max-width: 120px;">
         </div>
         
@@ -168,7 +166,12 @@
   const auth = getAuth(app);
   window.currentUser = null;
 
-  // АВТОМАТИЧНИЙ БЕЗШОВНИЙ ВХІД В TELEGRAM
+  // Якщо людина вручну тисне "Увійти через Telegram" у браузері - перекидаємо в Бот-Хаб
+  document.getElementById('tgLoginBtn').addEventListener('click', () => {
+      window.location.href = 'https://t.me/valeriy_hub_bot';
+  });
+
+  // Автоматичний вхід, якщо відкрито всередині Телеграму
   if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp;
       tg.ready();
@@ -179,25 +182,19 @@
           window.currentUser = {
               uid: user.id.toString(),
               displayName: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
-              telegramId: user.id.toString(),
-              authProvider: 'telegram'
+              telegramId: user.id.toString()
           };
-          checkLimitsAndWelcome(window.currentUser.displayName, 'Telegram');
-      } else {
-          // Якщо відкрито не в боті, показуємо кнопку Google
-          document.getElementById('login-buttons-wrapper').style.display = 'block';
-          document.getElementById('auth-status-area').innerHTML = '';
+          document.getElementById('login-buttons-wrapper').style.display = 'none';
+          checkLimitsAndWelcome(window.currentUser.displayName);
       }
-  } else {
-      document.getElementById('login-buttons-wrapper').style.display = 'block';
-      document.getElementById('auth-status-area').innerHTML = '';
   }
 
+  // Вхід через Google
   onAuthStateChanged(auth, (user) => {
       if (user) {
-          window.currentUser = user;
+          window.currentUser = user; // Тут uid буде унікальним кодом Google
           document.getElementById('login-buttons-wrapper').style.display = 'none';
-          checkLimitsAndWelcome(user.displayName, 'Google');
+          checkLimitsAndWelcome(user.displayName);
       }
   });
 
@@ -205,9 +202,18 @@
       signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
   });
 
-  async function checkLimitsAndWelcome(displayName, provider) {
+  async function checkLimitsAndWelcome(displayName) {
+      const uidToShow = window.currentUser.uid;
       const authArea = document.getElementById('auth-status-area');
-      authArea.innerHTML = `<p style="font-weight: bold; color: #4ade80;">✅ Ви увійшли як: ${displayName}</p><p style="color: #ff9800;" id="realLimitsText">⏳ Перевірка лімітів...</p>`;
+      
+      authArea.innerHTML = `
+          <p style="font-weight: bold; color: #4ade80; margin-bottom: 5px;">✅ Ви увійшли як: ${displayName}</p>
+          <p style="color: #aaa; font-size: 13px; margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+             Ваш унікальний ID: <b style="color: #fff; background: #222; padding: 2px 6px; border-radius: 4px; user-select: all;">${uidToShow}</b><br>
+             <span style="font-size: 11px;">(Скопіюйте цей ID для оплати тарифу)</span>
+          </p>
+          <p style="color: #ff9800; font-weight: bold;" id="realLimitsText">⏳ Перевірка лімітів...</p>
+      `;
       
       setTimeout(async () => {
           if (window.currentUser && window.db) {
@@ -215,6 +221,7 @@
               const snap = await window.getDoc(userRef);
               
               const tgId = window.currentUser.telegramId || window.currentUser.uid;
+              // Показуємо адмінку тільки тобі
               if (tgId === "8046369329") {
                   document.getElementById('admin-panel').style.display = 'block';
               }
@@ -240,11 +247,9 @@
                           document.getElementById('realLimitsText').innerHTML = `<span style="color:#f44336">Спроби вичерпано.</span> <button onclick="document.getElementById('checkoutModal').style.display='flex'" style="background:transparent; color:#d4af37; border:none; text-decoration:underline; font-size:14px; padding:0; min-height:0; width:auto; display:inline;">Оновити доступ</button>`;
                       }
                   } else {
-                      // Якщо людина є в базі, але поля dreamsLeft ще немає
                       document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
                   }
               } else {
-                  // Перший вхід — автоматично 3 спроби
                   document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
               }
           }
@@ -268,7 +273,7 @@ function sanitizeDreamText(text) {
 async function addDreams(amount) {
     const targetId = document.getElementById('targetUserId').value.trim();
     const msgEl = document.getElementById('adminMessage');
-    if (!targetId) { msgEl.innerText = "❌ Введіть ID!"; return; }
+    if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
     try {
         msgEl.innerText = "⏳ Обробка...";
         const targetRef = window.doc(window.db, "users", targetId);
@@ -277,7 +282,7 @@ async function addDreams(amount) {
         await window.setDoc(targetRef, { dreamsLeft: current + amount, unlimitedAccess: false }, { merge: true });
         msgEl.innerText = `✅ Додано ${amount} розборів. Всього: ${current + amount}`;
         msgEl.style.color = "#4ade80";
-    } catch(e) { msgEl.innerText = "❌ Помилка БД!"; }
+    } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
 }
 
 async function grantVipDays() {
@@ -285,28 +290,28 @@ async function grantVipDays() {
     const days = parseInt(document.getElementById('vipDays').value.trim());
     const msgEl = document.getElementById('adminMessage');
     
-    if (!targetId) { msgEl.innerText = "❌ Введіть ID!"; return; }
+    if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
     if (isNaN(days) || days <= 0) { msgEl.innerText = "❌ Введіть кількість днів!"; return; }
 
     try {
         const targetRef = window.doc(window.db, "users", targetId);
         const untilTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
         await window.setDoc(targetRef, { unlimitedUntil: untilTimestamp, unlimitedAccess: false }, { merge: true });
-        msgEl.innerText = `👑 Безліміт на ${days} днів надано!`;
+        msgEl.innerText = `👑 Безліміт на ${days} днів успішно надано!`;
         msgEl.style.color = "#facc15";
-    } catch(e) { msgEl.innerText = "❌ Помилка БД!"; }
+    } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
 }
 
 async function revokeVip() {
     const targetId = document.getElementById('targetUserId').value.trim();
     const msgEl = document.getElementById('adminMessage');
-    if (!targetId) { msgEl.innerText = "❌ Введіть ID!"; return; }
+    if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
     try {
         const targetRef = window.doc(window.db, "users", targetId);
         await window.setDoc(targetRef, { unlimitedAccess: false, unlimitedUntil: 0, dreamsLeft: 0 }, { merge: true });
-        msgEl.innerText = "⛔ Доступ закрито!";
+        msgEl.innerText = "⛔ Доступ закрито, спроби обнулено!";
         msgEl.style.color = "#f44336";
-    } catch(e) { msgEl.innerText = "❌ Помилка БД!"; }
+    } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
 }
 
 // === НОВА ГЕНЕРАЦІЯ PDF ===
@@ -337,7 +342,7 @@ async function triggerAiPremium() {
     const real = document.getElementById('realLife').value;
     currentClientName = document.getElementById('clientName').value || "Шукач";
 
-    if (!window.currentUser) { alert("Увійдіть, щоб отримати аналіз."); return; }
+    if (!window.currentUser) { alert("Будь ласка, увійдіть, щоб отримати аналіз."); return; }
     
     const userRef = window.doc(window.db, "users", window.currentUser.uid);
     const userSnap = await window.getDoc(userRef);
@@ -359,7 +364,7 @@ async function triggerAiPremium() {
         return;
     }
 
-    if (!text) { alert("Опишіть сон!"); return; }
+    if (!text) { alert("Будь ласка, опишіть свій сон!"); return; }
 
     const btn = document.querySelector('.btn-premium');
     btn.innerHTML = "⏳ Провідник аналізує... (5-10 сек)";
@@ -396,7 +401,6 @@ async function triggerAiPremium() {
         btn.innerHTML = "Розшифрувати послання ✵";
         btn.disabled = false;
         
-        // Оновлюємо статус лімітів після розбору
         const snap = await window.getDoc(userRef);
         if (snap.exists() && !isUnlimited && !isAdmin) {
             document.getElementById('realLimitsText').innerText = "Доступно розборів: " + snap.data().dreamsLeft;
@@ -405,8 +409,8 @@ async function triggerAiPremium() {
 }
 
 function payViaTelegram(packageName) {
-    const telegramId = window.currentUser?.telegramId || "Невідомо";
-    const msg = encodeURIComponent(`Вітаю! Хочу тариф: ${packageName}.\nМій ID: ${telegramId}\nДайте реквізити.`);
+    const telegramId = window.currentUser?.telegramId || window.currentUser?.uid || "Невідомо";
+    const msg = encodeURIComponent(`Вітаю! Хочу тариф: ${packageName}.\nМій унікальний ID: ${telegramId}\nДайте реквізити для оплати.`);
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.openTelegramLink(`https://t.me/runes_valeriy?text=${msg}`);
     } else {
