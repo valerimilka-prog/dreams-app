@@ -300,7 +300,8 @@
   // --- ЛОГІКА PDF ТА ШІ ---
   window.saveAsPdfNative = function() {
       const btn = document.getElementById('pdfBtn');
-      btn.innerHTML = "⏳ Формую PDF... Зачекайте";
+      // Змінений текст для перевірки кешу:
+      btn.innerHTML = "⏳ Готую документ...";
       btn.disabled = true;
       
       const element = document.getElementById('resultBox');
@@ -313,32 +314,16 @@
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
       
-      html2pdf().set(opt).from(element).output('blob').then(function(blob) {
-          const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-          
-          // Для телефонів викликаємо системне меню "Поділитися"
-          if (isMobile && navigator.share) {
-              const file = new File([blob], fileName, { type: 'application/pdf' });
-              try {
-                  navigator.share({
-                      files: [file],
-                      title: fileName
-                  }).then(() => resetPdfBtn(btn)).catch(() => forceDownload(blob, fileName, btn));
-                  return;
-              } catch (e) {
-                  forceDownload(blob, fileName, btn);
-                  return;
-              }
-          }
-          
-          // Для комп'ютерів робимо звичайне пряме завантаження
-          forceDownload(blob, fileName, btn);
-          
+      // Конвертуємо PDF у Base64-рядок і робимо пряме посилання
+      html2pdf().set(opt).from(element).output('datauristring').then(function(pdfBase64) {
+          // Замінюємо кнопку на фізичне посилання, яке Телеграм не блокує
+          btn.outerHTML = `<a href="${pdfBase64}" download="${fileName}" class="btn-pdf" style="display:block; text-align:center; padding:15px; background:#d4af37; color:#12131a; text-decoration:none; font-weight:bold; margin-top:20px; border-radius:8px; box-sizing: border-box;">📄 Готово! Натисніть, щоб зберегти PDF</a>`;
       }).catch(function(err) {
-          alert("Помилка генерації PDF. Спробуйте ще раз.");
-          resetPdfBtn(btn);
+          alert("Помилка генерації. Спробуйте ще раз.");
+          btn.innerHTML = "Зберегти розбір у PDF 📥";
+          btn.disabled = false;
       });
-
+  };
       // Допоміжні внутрішні функції для завантаження
       function forceDownload(blob, fileName, btn) {
           const url = window.URL.createObjectURL(blob);
