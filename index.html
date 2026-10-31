@@ -63,12 +63,10 @@
     <!-- АДМІН ПАНЕЛЬ -->
     <div id="admin-panel" style="display: none; background: #2a2a35; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ff9800;">
         <h3 style="color: #ff9800; margin-top: 0; text-align: center;">👑 Адмін Панель</h3>
-        
         <div class="admin-input-group">
             <input type="text" id="targetUserId" placeholder="ID клієнта (з його екрана)">
             <input type="number" id="vipDays" placeholder="Днів (напр. 30)" style="max-width: 120px;">
         </div>
-        
         <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
             <button onclick="window.addDreams(1)" style="flex: 1; min-width: 80px; padding: 8px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">+1 Спроба</button>
             <button onclick="window.addDreams(3)" style="flex: 1; min-width: 80px; padding: 8px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">+3 Спроби</button>
@@ -185,6 +183,7 @@
       document.getElementById('auth-status-area').innerHTML = '';
   }
 
+  // СТАНДАРТНИЙ ВХІД GOOGLE
   document.getElementById('loginBtn').addEventListener('click', () => {
       signInWithPopup(auth, new GoogleAuthProvider()).catch(error => {
           alert("Помилка авторизації Google: " + error.message);
@@ -296,31 +295,12 @@
       } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
   };
 
-  // --- ЛОГІКА PDF ---
-    window.saveAsPdfNative = function() {
-      const tg = window.Telegram ? window.Telegram.WebApp : null;
-      
-      // 1. ЛОГІКА ДЛЯ ТЕЛЕГРАМУ (Мобільний + ПК)
-      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-          // Формуємо красивий текст повідомлення
-          const textToShare = `✵ МІЙ РОЗБІР СНУ ✵\n\n` +
-              `АРХЕТИП:\n${document.getElementById('resArchetypes').innerText}\n\n` +
-              `МЕТАФОРА:\n${document.getElementById('resAnalysis').innerText}\n\n` +
-              `КОМПЕНСАЦІЯ:\n${document.getElementById('resCompensation').innerText}\n\n` +
-              `ІНТЕГРАЦІЯ:\n${document.getElementById('resAction').innerText}`;
-          
-          const shareUrl = `https://t.me/share/url?url=&text=${encodeURIComponent(textToShare)}`;
-          
-          // Відкриваємо нативне вікно вибору чату (найзручніше - відправити собі в "Збережене")
-          tg.openTelegramLink(shareUrl);
-          return;
-      }
-
-      // 2. ЛОГІКА ДЛЯ GOOGLE ТА БРАУЗЕРІВ (Класичний PDF)
+  // --- ЧИСТЕ ЗБЕРЕЖЕННЯ PDF БЕЗ ПЕРЕВІРОК ТЕЛЕГРАМУ ---
+  window.saveAsPdfNative = function() {
       const btn = document.getElementById('pdfBtn');
       btn.innerHTML = "⏳ Збереження...";
       btn.disabled = true;
-
+      
       const element = document.getElementById('resultBox');
       const opt = {
           margin:       10,
@@ -329,17 +309,17 @@
           html2canvas:  { scale: 2, backgroundColor: '#12131a', useCORS: true },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
-
+      
       html2pdf().set(opt).from(element).save().then(() => {
           btn.innerHTML = "Зберегти розбір у PDF 📥";
           btn.disabled = false;
       }).catch(() => {
-          alert("Помилка генерації. Спробуйте ще раз.");
+          alert("Помилка генерації. Відкрийте сайт через звичайний браузер (Chrome/Safari).");
           btn.innerHTML = "Зберегти розбір у PDF 📥";
           btn.disabled = false;
       });
   };
-    
+
   // --- ЗАПИТ ДО AI ---
   window.triggerAiPremium = async function() {
       let text = document.getElementById('dreamText').value;
