@@ -297,43 +297,58 @@
   };
 
   // --- ЛОГІКА PDF ---
-  window.saveAsPdfNative = function() {
+    window.saveAsPdfNative = function() {
       const btn = document.getElementById('pdfBtn');
       btn.innerHTML = "⏳ Збереження...";
       btn.disabled = true;
-      
+
       const element = document.getElementById('resultBox');
+      const fileName = 'Dream_Analysis.pdf';
       const opt = {
           margin:       10,
-          filename:     'Dream_Analysis.pdf', // Латиниця без пробілів для 100% сумісності
+          filename:     fileName,
           image:        { type: 'jpeg', quality: 0.98 },
           html2canvas:  { scale: 2, backgroundColor: '#12131a', useCORS: true },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
-      
-      // Примусове завантаження через Blob, яке не блокується
+
       html2pdf().set(opt).from(element).output('blob').then(function(blob) {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.style.display = 'none';
-          a.href = url;
-          a.download = opt.filename;
-          document.body.appendChild(a);
-          a.click();
-          
-          setTimeout(() => {
-              document.body.removeChild(a);
-              window.URL.revokeObjectURL(url);
-          }, 100);
-          
-          btn.innerHTML = "Зберегти розбір у PDF 📥";
-          btn.disabled = false;
+          // Якщо це телефон — викликаємо меню "Поділитися"
+          if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && navigator.share) {
+              const file = new File([blob], fileName, { type: 'application/pdf' });
+              navigator.share({
+                  files: [file],
+                  title: 'Розбір сну'
+              }).then(() => {
+                  btn.innerHTML = "Зберегти розбір у PDF 📥";
+                  btn.disabled = false;
+              }).catch(err => {
+                  btn.innerHTML = "Зберегти розбір у PDF 📥";
+                  btn.disabled = false;
+              });
+          } else {
+              // Якщо це ПК — звичайне пряме завантаження
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.style.display = 'none';
+              a.href = url;
+              a.download = fileName;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => {
+                  document.body.removeChild(a);
+                  window.URL.revokeObjectURL(url);
+              }, 100);
+              btn.innerHTML = "Зберегти розбір у PDF 📥";
+              btn.disabled = false;
+          }
       }).catch(function(err) {
           alert("Помилка генерації файлу.");
           btn.innerHTML = "Зберегти розбір у PDF 📥";
           btn.disabled = false;
       });
   };
+    
   // --- ЗАПИТ ДО AI ---
   window.triggerAiPremium = async function() {
       let text = document.getElementById('dreamText').value;
