@@ -299,13 +299,25 @@
   // --- ЛОГІКА PDF ---
     window.saveAsPdfNative = function() {
       const tg = window.Telegram ? window.Telegram.WebApp : null;
-      
-      // Якщо це мобільний додаток Телеграму, відразу підказуємо правильний шлях
-      if (tg && (tg.platform === 'android' || tg.platform === 'ios')) {
-          alert("Телеграм блокує завантаження файлів.\n\nЩоб зберегти PDF, натисніть три крапки (⋮) у правому верхньому куті екрана та виберіть «Відкрити в браузері» (Chrome/Safari). Там файл збережеться миттєво!");
+      const isMobileTg = tg && (tg.platform === 'android' || tg.platform === 'ios');
+
+      if (isMobileTg) {
+          // Для мобільного Телеграму: формуємо текст і копіюємо в буфер
+          const textToCopy = `✵ МІЙ РОЗБІР СНУ ✵\n\n` +
+              `АРХЕТИП:\n${document.getElementById('resArchetypes').innerText}\n\n` +
+              `МЕТАФОРА:\n${document.getElementById('resAnalysis').innerText}\n\n` +
+              `КОМПЕНСАЦІЯ:\n${document.getElementById('resCompensation').innerText}\n\n` +
+              `ІНТЕГРАЦІЯ:\n${document.getElementById('resAction').innerText}`;
+          
+          navigator.clipboard.writeText(textToCopy).then(() => {
+              alert("✅ Текст розбору успішно скопійовано!\n\nВи можете вставити його у свої Нотатки або в «Збережене» у Телеграмі.");
+          }).catch(() => {
+              alert("Не вдалося скопіювати. Спробуйте виділити текст на екрані вручну.");
+          });
           return;
       }
 
+      // Для ПК і звичайних браузерів: стабільне завантаження PDF
       const btn = document.getElementById('pdfBtn');
       btn.innerHTML = "⏳ Збереження...";
       btn.disabled = true;
@@ -319,12 +331,10 @@
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // Старий добрий метод, який безвідмовно працює на ПК і в зовнішніх браузерах
       html2pdf().set(opt).from(element).save().then(() => {
           btn.innerHTML = "Зберегти розбір у PDF 📥";
           btn.disabled = false;
       }).catch(() => {
-          alert("Помилка генерації. Спробуйте відкрити сторінку через звичайний браузер.");
           btn.innerHTML = "Зберегти розбір у PDF 📥";
           btn.disabled = false;
       });
