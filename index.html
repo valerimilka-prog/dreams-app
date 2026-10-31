@@ -8,9 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сонник онлайн — Точне тлумачення та психологічний аналіз снів</title>
     
-    <!-- Підключення Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Підключення бібліотеки для генерації PDF всередині Telegram -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
@@ -40,6 +38,9 @@
         .result-title { font-weight: normal; color: #d4af37; margin-bottom: 8px; font-size: 18px; border-bottom: 1px dashed #3a3227; padding-bottom: 4px; }
         .result-text { font-size: 15px; color: #c5baab; line-height: 1.7; text-align: justify; padding: 5px; }
         .warning-box { background: rgba(212, 175, 55, 0.1); border-left: 3px solid #d4af37; padding: 12px; margin-bottom: 20px; font-size: 14px; color: #c5baab; font-style: italic; }
+
+        .admin-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .admin-input-group input { flex: 1; padding: 10px; border-radius: 5px; border: none; background: #1e1e26; color: white; }
     </style>
 </head>
 <body>
@@ -52,24 +53,31 @@
 
     <!-- БЛОК АВТОРИЗАЦІЇ -->
     <div id="auth-section" style="margin-bottom: 20px; text-align: center;">
-        <div id="login-buttons-wrapper">
+        <div id="login-buttons-wrapper" style="display: none;">
             <button id="loginBtn" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; max-width: 250px; margin: 0 auto 10px auto;">Увійти через Google</button>
-            <button onclick="window.open('https://t.me/my_dreams_analysis_bot', '_blank')" style="padding: 10px 20px; background: #2AABEE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; max-width: 250px; margin: 0 auto;">✈️ Увійти через Telegram</button>
+            <p style="font-size: 13px; color: #888;">Або відкрийте це посилання через Telegram-бота.</p>
         </div>
-        <div id="auth-status-area"></div>
+        <div id="auth-status-area">
+            <p style="color: #ff9800; font-weight: bold;">⏳ Синхронізація з Telegram...</p>
+        </div>
     </div>
 
     <!-- АДМІН ПАНЕЛЬ -->
     <div id="admin-panel" style="display: none; background: #2a2a35; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ff9800;">
         <h3 style="color: #ff9800; margin-top: 0; text-align: center;">👑 Адмін Панель</h3>
-        <input type="text" id="targetUserId" placeholder="Telegram ID клієнта" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: none; background: #1e1e26; color: white;">
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-            <button onclick="addDreams(1)" style="flex: 1; min-width: 100px; padding: 10px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; min-height: 40px; margin: 0;">+1 Спроба</button>
-            <button onclick="addDreams(3)" style="flex: 1; min-width: 100px; padding: 10px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; min-height: 40px; margin: 0;">+3 Спроби</button>
-            <button onclick="grantVip()" style="flex: 1; min-width: 100px; padding: 10px; background: #facc15; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; min-height: 40px; margin: 0;">Безліміт</button>
-            <button onclick="revokeVip()" style="flex: 1; min-width: 100px; padding: 10px; background: #f44336; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 13px; min-height: 40px; margin: 0;">Забрати</button>
+        
+        <div class="admin-input-group">
+            <input type="text" id="targetUserId" placeholder="Telegram ID клієнта">
+            <input type="number" id="vipDays" placeholder="Днів (напр. 30)" style="max-width: 120px;">
         </div>
-        <p id="adminMessage" style="margin-top: 10px; font-weight: bold; font-size: 14px; text-align: center; color: #ccc;"></p>
+        
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+            <button onclick="addDreams(1)" style="flex: 1; min-width: 80px; padding: 8px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">+1 Спроба</button>
+            <button onclick="addDreams(3)" style="flex: 1; min-width: 80px; padding: 8px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">+3 Спроби</button>
+            <button onclick="grantVipDays()" style="flex: 1; min-width: 100px; padding: 8px; background: #facc15; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">Дати Безліміт</button>
+            <button onclick="revokeVip()" style="flex: 1; min-width: 80px; padding: 8px; background: #f44336; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">Забрати</button>
+        </div>
+        <p id="adminMessage" style="margin-top: 10px; font-weight: bold; font-size: 13px; text-align: center; color: #ccc;"></p>
     </div>
 
     <div class="form-group">
@@ -160,13 +168,13 @@
   const auth = getAuth(app);
   window.currentUser = null;
 
-  // АВТОМАТИЧНИЙ ВХІД ЧЕРЕЗ TELEGRAM
+  // АВТОМАТИЧНИЙ БЕЗШОВНИЙ ВХІД В TELEGRAM
   if (window.Telegram && window.Telegram.WebApp) {
       const tg = window.Telegram.WebApp;
       tg.ready();
-      tg.expand(); // Відкриває WebApp на весь екран
+      tg.expand();
+      
       if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-          document.getElementById('login-buttons-wrapper').style.display = 'none'; // Миттєво ховаємо кнопки
           const user = tg.initDataUnsafe.user;
           window.currentUser = {
               uid: user.id.toString(),
@@ -175,7 +183,14 @@
               authProvider: 'telegram'
           };
           checkLimitsAndWelcome(window.currentUser.displayName, 'Telegram');
+      } else {
+          // Якщо відкрито не в боті, показуємо кнопку Google
+          document.getElementById('login-buttons-wrapper').style.display = 'block';
+          document.getElementById('auth-status-area').innerHTML = '';
       }
+  } else {
+      document.getElementById('login-buttons-wrapper').style.display = 'block';
+      document.getElementById('auth-status-area').innerHTML = '';
   }
 
   onAuthStateChanged(auth, (user) => {
@@ -206,8 +221,18 @@
 
               if (snap.exists()) {
                   const data = snap.data();
+                  const now = Date.now();
+                  
+                  let isUnlimitedDays = false;
+                  if (data.unlimitedUntil && now < data.unlimitedUntil) {
+                      isUnlimitedDays = true;
+                  }
+
                   if (data.unlimitedAccess) {
-                      document.getElementById('realLimitsText').innerText = "Доступ: Безліміт 👑";
+                      document.getElementById('realLimitsText').innerText = "Доступ: Безліміт назавжди 👑";
+                  } else if (isUnlimitedDays) {
+                      const untilDate = new Date(data.unlimitedUntil).toLocaleDateString('uk-UA');
+                      document.getElementById('realLimitsText').innerText = `Доступ: Безліміт до ${untilDate} ⏳`;
                   } else if (data.dreamsLeft !== undefined) {
                       if (data.dreamsLeft > 0) {
                           document.getElementById('realLimitsText').innerText = "Доступно розборів: " + data.dreamsLeft;
@@ -215,13 +240,15 @@
                           document.getElementById('realLimitsText').innerHTML = `<span style="color:#f44336">Спроби вичерпано.</span> <button onclick="document.getElementById('checkoutModal').style.display='flex'" style="background:transparent; color:#d4af37; border:none; text-decoration:underline; font-size:14px; padding:0; min-height:0; width:auto; display:inline;">Оновити доступ</button>`;
                       }
                   } else {
+                      // Якщо людина є в базі, але поля dreamsLeft ще немає
                       document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
                   }
               } else {
+                  // Перший вхід — автоматично 3 спроби
                   document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
               }
           }
-      }, 800);
+      }, 500);
   }
 </script>
 
@@ -246,24 +273,26 @@ async function addDreams(amount) {
         msgEl.innerText = "⏳ Обробка...";
         const targetRef = window.doc(window.db, "users", targetId);
         const snap = await window.getDoc(targetRef);
-        let current = 0;
-        if (snap.exists() && snap.data().dreamsLeft !== undefined) {
-            current = snap.data().dreamsLeft;
-        }
+        let current = (snap.exists() && snap.data().dreamsLeft !== undefined) ? snap.data().dreamsLeft : 0;
         await window.setDoc(targetRef, { dreamsLeft: current + amount, unlimitedAccess: false }, { merge: true });
         msgEl.innerText = `✅ Додано ${amount} розборів. Всього: ${current + amount}`;
         msgEl.style.color = "#4ade80";
     } catch(e) { msgEl.innerText = "❌ Помилка БД!"; }
 }
 
-async function grantVip() {
+async function grantVipDays() {
     const targetId = document.getElementById('targetUserId').value.trim();
+    const days = parseInt(document.getElementById('vipDays').value.trim());
     const msgEl = document.getElementById('adminMessage');
+    
     if (!targetId) { msgEl.innerText = "❌ Введіть ID!"; return; }
+    if (isNaN(days) || days <= 0) { msgEl.innerText = "❌ Введіть кількість днів!"; return; }
+
     try {
         const targetRef = window.doc(window.db, "users", targetId);
-        await window.setDoc(targetRef, { unlimitedAccess: true }, { merge: true });
-        msgEl.innerText = "👑 Безліміт надано!";
+        const untilTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+        await window.setDoc(targetRef, { unlimitedUntil: untilTimestamp, unlimitedAccess: false }, { merge: true });
+        msgEl.innerText = `👑 Безліміт на ${days} днів надано!`;
         msgEl.style.color = "#facc15";
     } catch(e) { msgEl.innerText = "❌ Помилка БД!"; }
 }
@@ -274,7 +303,7 @@ async function revokeVip() {
     if (!targetId) { msgEl.innerText = "❌ Введіть ID!"; return; }
     try {
         const targetRef = window.doc(window.db, "users", targetId);
-        await window.setDoc(targetRef, { unlimitedAccess: false, dreamsLeft: 0 }, { merge: true });
+        await window.setDoc(targetRef, { unlimitedAccess: false, unlimitedUntil: 0, dreamsLeft: 0 }, { merge: true });
         msgEl.innerText = "⛔ Доступ закрито!";
         msgEl.style.color = "#f44336";
     } catch(e) { msgEl.innerText = "❌ Помилка БД!"; }
@@ -316,8 +345,10 @@ async function triggerAiPremium() {
     let isUnlimited = false;
     
     if (userSnap.exists()) {
-        if(userSnap.data().dreamsLeft !== undefined) remainingDreams = userSnap.data().dreamsLeft;
-        if(userSnap.data().unlimitedAccess) isUnlimited = true;
+        const data = userSnap.data();
+        if(data.dreamsLeft !== undefined) remainingDreams = data.dreamsLeft;
+        if(data.unlimitedAccess) isUnlimited = true;
+        if(data.unlimitedUntil && Date.now() < data.unlimitedUntil) isUnlimited = true;
     }
     
     const tgId = window.currentUser.telegramId || window.currentUser.uid;
@@ -364,7 +395,12 @@ async function triggerAiPremium() {
     } finally {
         btn.innerHTML = "Розшифрувати послання ✵";
         btn.disabled = false;
-        checkLimitsAndWelcome(window.currentUser.displayName, window.currentUser.authProvider);
+        
+        // Оновлюємо статус лімітів після розбору
+        const snap = await window.getDoc(userRef);
+        if (snap.exists() && !isUnlimited && !isAdmin) {
+            document.getElementById('realLimitsText').innerText = "Доступно розборів: " + snap.data().dreamsLeft;
+        }
     }
 }
 
