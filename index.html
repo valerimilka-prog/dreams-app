@@ -53,13 +53,12 @@
 
     <!-- БЛОК АВТОРИЗАЦІЇ -->
     <div id="auth-section" style="margin-bottom: 20px; text-align: center;">
-        <div id="login-buttons-wrapper" style="display: none;">
-            <button onclick="window.open('https://t.me/valeriy_hub_bot', '_blank')" style="padding: 10px 20px; background: #2AABEE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; max-width: 250px; margin: 0 auto 10px auto;">✈️ Відкрити в Telegram</button>
+        <div id="login-buttons-wrapper">
+            <!-- ПОВЕРНУТО СТАРУ КНОПКУ ТЕЛЕГРАМУ -->
+            <button onclick="window.open('https://t.me/my_dreams_analysis_bot', '_blank')" style="padding: 10px 20px; background: #2AABEE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; max-width: 250px; margin: 0 auto 10px auto;">✈️ Увійти через Telegram</button>
             <button id="loginBtn" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; max-width: 250px; margin: 0 auto;">Увійти через Google</button>
         </div>
-        <div id="auth-status-area">
-            <p style="color: #ff9800; font-weight: bold;">⏳ Перевірка авторизації...</p>
-        </div>
+        <div id="auth-status-area"></div>
     </div>
 
     <!-- АДМІН ПАНЕЛЬ -->
@@ -72,10 +71,10 @@
         </div>
         
         <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
-            <button onclick="addDreams(1)" style="flex: 1; min-width: 80px; padding: 8px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">+1 Спроба</button>
-            <button onclick="addDreams(3)" style="flex: 1; min-width: 80px; padding: 8px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">+3 Спроби</button>
-            <button onclick="grantVipDays()" style="flex: 1; min-width: 100px; padding: 8px; background: #facc15; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">Дати Безліміт</button>
-            <button onclick="revokeVip()" style="flex: 1; min-width: 80px; padding: 8px; background: #f44336; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">Забрати</button>
+            <button onclick="window.addDreams(1)" style="flex: 1; min-width: 80px; padding: 8px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">+1 Спроба</button>
+            <button onclick="window.addDreams(3)" style="flex: 1; min-width: 80px; padding: 8px; background: #4ade80; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">+3 Спроби</button>
+            <button onclick="window.grantVipDays()" style="flex: 1; min-width: 100px; padding: 8px; background: #facc15; color: black; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">Дати Безліміт</button>
+            <button onclick="window.revokeVip()" style="flex: 1; min-width: 80px; padding: 8px; background: #f44336; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 12px; min-height: 40px; margin: 0;">Забрати</button>
         </div>
         <p id="adminMessage" style="margin-top: 10px; font-weight: bold; font-size: 13px; text-align: center; color: #ccc;"></p>
     </div>
@@ -101,7 +100,7 @@
     </div>
 
     <div class="btn-group">
-        <button class="btn-premium" onclick="triggerAiPremium()">Розшифрувати послання ✵</button>
+        <button class="btn-premium" onclick="window.triggerAiPremium()">Розшифрувати послання ✵</button>
     </div>
 
     <div id="resultBox" class="result-box" style="display: none;">
@@ -123,7 +122,7 @@
             <div id="resAction" class="result-text"></div>
         </div>
     </div>
-    <button id="pdfBtn" class="btn-pdf" style="display: none;" onclick="saveAsPdfNative()">Зберегти розбір у PDF 📥</button>
+    <button id="pdfBtn" class="btn-pdf" style="display: none;" onclick="window.saveAsPdfNative()">Зберегти розбір у PDF 📥</button>
 </div>
 
 <!-- Модальне вікно з тарифами -->
@@ -134,15 +133,15 @@
         
         <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #333; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
             <div style="text-align: left;"><div style="color: white; font-weight: bold;">1 розбір</div><div style="color: #888; font-size: 12px;">Разовий аналіз</div></div>
-            <div style="text-align: right;"><div style="color: #d4af37; font-weight: bold;">50 грн</div><button onclick="payViaTelegram('1 розбір (50 грн)')" style="margin-top: 4px; padding: 5px 10px; min-height: 0; border-radius: 5px; font-size: 12px; width: auto;">Обрати</button></div>
+            <div style="text-align: right;"><div style="color: #d4af37; font-weight: bold;">50 грн</div><button onclick="window.payViaTelegram('1 розбір (50 грн)')" style="margin-top: 4px; padding: 5px 10px; min-height: 0; border-radius: 5px; font-size: 12px; width: auto;">Обрати</button></div>
         </div>
         <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #d4af37; border-radius: 8px; background: rgba(212, 175, 55, 0.05); display: flex; justify-content: space-between; align-items: center;">
             <div style="text-align: left;"><div style="color: white; font-weight: bold;">3 розбори</div><div style="color: #888; font-size: 12px;">Вигідно</div></div>
-            <div style="text-align: right;"><div style="color: #d4af37; font-weight: bold;">120 грн</div><button onclick="payViaTelegram('Пакет 3 розбори (120 грн)')" style="margin-top: 4px; background: #d4af37; color: #000; padding: 5px 10px; min-height: 0; border-radius: 5px; font-size: 12px; width: auto;">Обрати</button></div>
+            <div style="text-align: right;"><div style="color: #d4af37; font-weight: bold;">120 грн</div><button onclick="window.payViaTelegram('Пакет 3 розбори (120 грн)')" style="margin-top: 4px; background: #d4af37; color: #000; padding: 5px 10px; min-height: 0; border-radius: 5px; font-size: 12px; width: auto;">Обрати</button></div>
         </div>
         <div style="margin-bottom: 20px; padding: 12px; border: 1px solid #8c6239; border-radius: 8px; background: rgba(140, 98, 57, 0.1); display: flex; justify-content: space-between; align-items: center;">
             <div style="text-align: left;"><div style="color: white; font-weight: bold;">Безліміт 👑</div><div style="color: #888; font-size: 12px;">На 30 днів</div></div>
-            <div style="text-align: right;"><div style="color: #d4af37; font-weight: bold;">290 грн</div><button onclick="payViaTelegram('Безліміт на місяць (290 грн)')" style="margin-top: 4px; padding: 5px 10px; min-height: 0; border-radius: 5px; font-size: 12px; width: auto;">Обрати</button></div>
+            <div style="text-align: right;"><div style="color: #d4af37; font-weight: bold;">290 грн</div><button onclick="window.payViaTelegram('Безліміт на місяць (290 грн)')" style="margin-top: 4px; padding: 5px 10px; min-height: 0; border-radius: 5px; font-size: 12px; width: auto;">Обрати</button></div>
         </div>
         <button onclick="document.getElementById('checkoutModal').style.display='none'" style="background: transparent; color: #777; border: none; cursor: pointer; text-decoration: underline; min-height: 0; padding: 0; width: auto;">Закрити</button>
     </div>
@@ -150,8 +149,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  // Повертаємо надійний signInWithPopup
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -164,15 +162,15 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  window.db = getFirestore(app);
-  window.doc = doc; window.getDoc = getDoc; window.setDoc = setDoc;
+  const db = getFirestore(app);
   const auth = getAuth(app);
   window.currentUser = null;
+  let currentClientName = "Шукач";
 
+  // --- ЛОГІКА АВТОРИЗАЦІЇ ---
   const tg = window.Telegram ? window.Telegram.WebApp : null;
 
   if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      // 1. АВТОМАТИЧНИЙ ВХІД ЧЕРЕЗ ТЕЛЕГРАМ
       tg.ready();
       tg.expand();
       const user = tg.initDataUnsafe.user;
@@ -184,28 +182,27 @@
       document.getElementById('login-buttons-wrapper').style.display = 'none';
       checkLimitsAndWelcome(window.currentUser.displayName);
   } else {
-      // 2. ВХІД ЧЕРЕЗ ЗВИЧАЙНИЙ БРАУЗЕР (GOOGLE)
       document.getElementById('login-buttons-wrapper').style.display = 'block';
       document.getElementById('auth-status-area').innerHTML = '';
-
-      onAuthStateChanged(auth, (user) => {
-          if (user) {
-              window.currentUser = {
-                  uid: user.uid,
-                  displayName: user.displayName,
-                  telegramId: null
-              };
-              document.getElementById('login-buttons-wrapper').style.display = 'none';
-              checkLimitsAndWelcome(user.displayName);
-          }
-      });
-
-      document.getElementById('loginBtn').addEventListener('click', () => {
-          signInWithPopup(auth, new GoogleAuthProvider()).catch(error => {
-              alert("Помилка авторизації Google: " + error.message);
-          });
-      });
   }
+
+  document.getElementById('loginBtn').addEventListener('click', () => {
+      signInWithPopup(auth, new GoogleAuthProvider()).catch(error => {
+          alert("Помилка авторизації Google: " + error.message);
+      });
+  });
+
+  onAuthStateChanged(auth, (user) => {
+      if (user) {
+          window.currentUser = {
+              uid: user.uid,
+              displayName: user.displayName,
+              telegramId: null
+          };
+          document.getElementById('login-buttons-wrapper').style.display = 'none';
+          checkLimitsAndWelcome(user.displayName);
+      }
+  });
 
   async function checkLimitsAndWelcome(displayName) {
       const uidToShow = window.currentUser.uid;
@@ -220,13 +217,13 @@
           <p style="color: #ff9800; font-weight: bold;" id="realLimitsText">⏳ Перевірка лімітів...</p>
       `;
       
-      if (window.currentUser.uid === "8046369329") {
+      if (window.currentUser.telegramId === "8046369329" || window.currentUser.uid === "8046369329") {
           document.getElementById('admin-panel').style.display = 'block';
       }
 
       try {
-          const userRef = window.doc(window.db, "users", window.currentUser.uid);
-          const snap = await window.getDoc(userRef);
+          const userRef = doc(db, "users", window.currentUser.uid);
+          const snap = await getDoc(userRef);
 
           if (snap.exists()) {
               const data = snap.data();
@@ -254,167 +251,151 @@
           console.error(e);
       }
   }
-</script>
 
-<script>
-let currentClientName = "Шукач";
+  // --- ЛОГІКА АДМІНКИ ---
+  window.addDreams = async function(amount) {
+      const targetId = document.getElementById('targetUserId').value.trim();
+      const msgEl = document.getElementById('adminMessage');
+      if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
+      try {
+          msgEl.innerText = "⏳ Обробка...";
+          const targetRef = doc(db, "users", targetId);
+          const snap = await getDoc(targetRef);
+          let current = (snap.exists() && snap.data().dreamsLeft !== undefined) ? snap.data().dreamsLeft : 0;
+          await setDoc(targetRef, { dreamsLeft: current + amount, unlimitedAccess: false }, { merge: true });
+          msgEl.innerText = `✅ Додано ${amount} розборів. Всього: ${current + amount}`;
+          msgEl.style.color = "#4ade80";
+      } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
+  };
 
-function sanitizeDreamText(text) {
-    if (!text) return "";
-    let cleanText = text.replace(/вбив[а-яіїєґ]*/gi, 'знищив');
-    cleanText = cleanText.replace(/кров[а-яіїєґ]*/gi, 'темна рідина');
-    cleanText = cleanText.replace(/труп[а-яіїєґ]*/gi, 'неживе тіло');
-    cleanText = cleanText.replace(/зґвалт[а-яіїєґ]*/gi, 'вчинив примус');
-    return cleanText;
-}
+  window.grantVipDays = async function() {
+      const targetId = document.getElementById('targetUserId').value.trim();
+      const days = parseInt(document.getElementById('vipDays').value.trim());
+      const msgEl = document.getElementById('adminMessage');
+      
+      if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
+      if (isNaN(days) || days <= 0) { msgEl.innerText = "❌ Введіть кількість днів!"; return; }
 
-// === ЛОГІКА АДМІН-ПАНЕЛІ ===
-async function addDreams(amount) {
-    const targetId = document.getElementById('targetUserId').value.trim();
-    const msgEl = document.getElementById('adminMessage');
-    if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
-    try {
-        msgEl.innerText = "⏳ Обробка...";
-        const targetRef = window.doc(window.db, "users", targetId);
-        const snap = await window.getDoc(targetRef);
-        let current = (snap.exists() && snap.data().dreamsLeft !== undefined) ? snap.data().dreamsLeft : 0;
-        await window.setDoc(targetRef, { dreamsLeft: current + amount, unlimitedAccess: false }, { merge: true });
-        msgEl.innerText = `✅ Додано ${amount} розборів. Всього: ${current + amount}`;
-        msgEl.style.color = "#4ade80";
-    } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
-}
+      try {
+          const targetRef = doc(db, "users", targetId);
+          const untilTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
+          await setDoc(targetRef, { unlimitedUntil: untilTimestamp, unlimitedAccess: false }, { merge: true });
+          msgEl.innerText = `👑 Безліміт на ${days} днів успішно надано!`;
+          msgEl.style.color = "#facc15";
+      } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
+  };
 
-async function grantVipDays() {
-    const targetId = document.getElementById('targetUserId').value.trim();
-    const days = parseInt(document.getElementById('vipDays').value.trim());
-    const msgEl = document.getElementById('adminMessage');
-    
-    if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
-    if (isNaN(days) || days <= 0) { msgEl.innerText = "❌ Введіть кількість днів!"; return; }
+  window.revokeVip = async function() {
+      const targetId = document.getElementById('targetUserId').value.trim();
+      const msgEl = document.getElementById('adminMessage');
+      if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
+      try {
+          const targetRef = doc(db, "users", targetId);
+          await setDoc(targetRef, { unlimitedAccess: false, unlimitedUntil: 0, dreamsLeft: 0 }, { merge: true });
+          msgEl.innerText = "⛔ Доступ закрито, спроби обнулено!";
+          msgEl.style.color = "#f44336";
+      } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
+  };
 
-    try {
-        const targetRef = window.doc(window.db, "users", targetId);
-        const untilTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
-        await window.setDoc(targetRef, { unlimitedUntil: untilTimestamp, unlimitedAccess: false }, { merge: true });
-        msgEl.innerText = `👑 Безліміт на ${days} днів успішно надано!`;
-        msgEl.style.color = "#facc15";
-    } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
-}
+  // --- ЛОГІКА PDF ТА ШІ ---
+  window.saveAsPdfNative = function() {
+      const btn = document.getElementById('pdfBtn');
+      btn.innerHTML = "⏳ Формую PDF... Зачекайте";
+      btn.disabled = true;
+      
+      const element = document.getElementById('resultBox');
+      const opt = {
+          margin:       10,
+          filename:     `Аналіз_Сну_${currentClientName}.pdf`,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, backgroundColor: '#12131a', useCORS: true },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().set(opt).from(element).save().then(() => {
+          btn.innerHTML = "Зберегти розбір у PDF 📥";
+          btn.disabled = false;
+      });
+  };
 
-async function revokeVip() {
-    const targetId = document.getElementById('targetUserId').value.trim();
-    const msgEl = document.getElementById('adminMessage');
-    if (!targetId) { msgEl.innerText = "❌ Введіть ID клієнта!"; return; }
-    try {
-        const targetRef = window.doc(window.db, "users", targetId);
-        await window.setDoc(targetRef, { unlimitedAccess: false, unlimitedUntil: 0, dreamsLeft: 0 }, { merge: true });
-        msgEl.innerText = "⛔ Доступ закрито, спроби обнулено!";
-        msgEl.style.color = "#f44336";
-    } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
-}
+  window.triggerAiPremium = async function() {
+      let text = document.getElementById('dreamText').value;
+      const emotion = document.getElementById('dreamEmotion').value;
+      const real = document.getElementById('realLife').value;
+      currentClientName = document.getElementById('clientName').value || "Шукач";
 
-// === НОВА ГЕНЕРАЦІЯ PDF ===
-function saveAsPdfNative() {
-    const btn = document.getElementById('pdfBtn');
-    btn.innerHTML = "⏳ Формую PDF... Зачекайте";
-    btn.disabled = true;
-    
-    const element = document.getElementById('resultBox');
-    const opt = {
-        margin:       10,
-        filename:     `Аналіз_Сну_${currentClientName}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, backgroundColor: '#12131a', useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    
-    html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerHTML = "Зберегти розбір у PDF 📥";
-        btn.disabled = false;
-    });
-}
+      if (!window.currentUser) { alert("Будь ласка, увійдіть, щоб отримати аналіз."); return; }
+      if (!text) { alert("Будь ласка, опишіть свій сон!"); return; }
 
-// === ЗАПИТ ДО AI ===
-async function triggerAiPremium() {
-    const text = sanitizeDreamText(document.getElementById('dreamText').value);
-    const emotion = document.getElementById('dreamEmotion').value;
-    const real = document.getElementById('realLife').value;
-    currentClientName = document.getElementById('clientName').value || "Шукач";
+      // Базова санітизація
+      text = text.replace(/вбив[а-яіїєґ]*/gi, 'знищив').replace(/кров[а-яіїєґ]*/gi, 'темна рідина').replace(/труп[а-яіїєґ]*/gi, 'неживе тіло').replace(/зґвалт[а-яіїєґ]*/gi, 'вчинив примус');
+      
+      const userRef = doc(db, "users", window.currentUser.uid);
+      const userSnap = await getDoc(userRef);
+      let remainingDreams = 3;
+      let isUnlimited = false;
+      
+      if (userSnap.exists()) {
+          const data = userSnap.data();
+          if(data.dreamsLeft !== undefined) remainingDreams = data.dreamsLeft;
+          if(data.unlimitedAccess) isUnlimited = true;
+          if(data.unlimitedUntil && Date.now() < data.unlimitedUntil) isUnlimited = true;
+      }
+      
+      const isAdmin = (window.currentUser.telegramId === "8046369329" || window.currentUser.uid === "8046369329");
 
-    if (!window.currentUser) { alert("Будь ласка, увійдіть, щоб отримати аналіз."); return; }
-    
-    const userRef = window.doc(window.db, "users", window.currentUser.uid);
-    const userSnap = await window.getDoc(userRef);
-    let remainingDreams = 3;
-    let isUnlimited = false;
-    
-    if (userSnap.exists()) {
-        const data = userSnap.data();
-        if(data.dreamsLeft !== undefined) remainingDreams = data.dreamsLeft;
-        if(data.unlimitedAccess) isUnlimited = true;
-        if(data.unlimitedUntil && Date.now() < data.unlimitedUntil) isUnlimited = true;
-    }
-    
-    const isAdmin = (window.currentUser.uid === "8046369329");
+      if (!isAdmin && !isUnlimited && remainingDreams <= 0) {
+          document.getElementById('checkoutModal').style.display = 'flex';
+          return;
+      }
 
-    if (!isAdmin && !isUnlimited && remainingDreams <= 0) {
-        document.getElementById('checkoutModal').style.display = 'flex';
-        return;
-    }
+      const btn = document.querySelector('.btn-premium');
+      btn.innerHTML = "⏳ Провідник аналізує... (5-10 сек)";
+      btn.disabled = true;
+      
+      try {
+          if (!isAdmin && !isUnlimited) {
+              await setDoc(userRef, { dreamsLeft: remainingDreams - 1 }, { merge: true });
+          }
 
-    if (!text) { alert("Будь ласка, опишіть свій сон!"); return; }
+          const response = await fetch('/api/analyzeDream', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ text, emotion, real })
+          });
 
-    const btn = document.querySelector('.btn-premium');
-    btn.innerHTML = "⏳ Провідник аналізує... (5-10 сек)";
-    btn.disabled = true;
-    
-    try {
-        if (!isAdmin && !isUnlimited) {
-            await window.setDoc(userRef, { dreamsLeft: remainingDreams - 1 }, { merge: true });
-        }
+          if (!response.ok) {
+              alert("Сталася помилка. Можливо, текст надто відвертий для AI.");
+              return;
+          }
 
-        const response = await fetch('/api/analyzeDream', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, emotion, real })
-        });
+          const result = await response.json();
+          document.getElementById('resArchetypes').innerHTML = result.archetype;
+          document.getElementById('resAnalysis').innerHTML = result.analysis.replace(/\n/g, '<br>');
+          document.getElementById('resCompensation').innerHTML = result.compensation.replace(/\n/g, '<br>');
+          document.getElementById('resAction').innerHTML = result.action.replace(/\n/g, '<br>');
 
-        if (!response.ok) {
-            alert("Сталася помилка. Можливо, текст надто відвертий для AI.");
-            return;
-        }
+          document.getElementById('pdfMeta').innerHTML = `Клієнт: ${currentClientName} | Юнгіанський розбір`;
+          document.getElementById('resultBox').style.display = 'block';
+          document.getElementById('pdfBtn').style.display = 'block';
+      } catch (error) {
+          alert("Помилка зв'язку з сервером.");
+      } finally {
+          btn.innerHTML = "Розшифрувати послання ✵";
+          btn.disabled = false;
+          
+          const snap = await getDoc(userRef);
+          if (snap.exists() && !isUnlimited && !isAdmin) {
+              document.getElementById('realLimitsText').innerText = "Доступно розборів: " + snap.data().dreamsLeft;
+          }
+      }
+  };
 
-        const result = await response.json();
-        document.getElementById('resArchetypes').innerHTML = result.archetype;
-        document.getElementById('resAnalysis').innerHTML = result.analysis.replace(/\n/g, '<br>');
-        document.getElementById('resCompensation').innerHTML = result.compensation.replace(/\n/g, '<br>');
-        document.getElementById('resAction').innerHTML = result.action.replace(/\n/g, '<br>');
-
-        document.getElementById('pdfMeta').innerHTML = `Клієнт: ${currentClientName} | Юнгіанський розбір`;
-        document.getElementById('resultBox').style.display = 'block';
-        document.getElementById('pdfBtn').style.display = 'block';
-    } catch (error) {
-        alert("Помилка зв'язку з сервером.");
-    } finally {
-        btn.innerHTML = "Розшифрувати послання ✵";
-        btn.disabled = false;
-        
-        const snap = await window.getDoc(userRef);
-        if (snap.exists() && !isUnlimited && !isAdmin) {
-            document.getElementById('realLimitsText').innerText = "Доступно розборів: " + snap.data().dreamsLeft;
-        }
-    }
-}
-
-function payViaTelegram(packageName) {
-    const telegramId = window.currentUser?.uid || "Невідомо";
-    const msg = encodeURIComponent(`Вітаю! Хочу тариф: ${packageName}.\nМій унікальний ID: ${telegramId}\nДайте реквізити для оплати.`);
-    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
-        window.Telegram.WebApp.openTelegramLink(`https://t.me/runes_valeriy?text=${msg}`);
-    } else {
-        window.open(`https://t.me/runes_valeriy?text=${msg}`);
-    }
-}
+  window.payViaTelegram = function(packageName) {
+      const telegramId = window.currentUser?.uid || "Невідомо";
+      const msg = encodeURIComponent(`Вітаю! Хочу тариф: ${packageName}.\nМій унікальний ID: ${telegramId}\nДайте реквізити для оплати.`);
+      window.open(`https://t.me/runes_valeriy?text=${msg}`);
+  };
 </script>
 </body>
 </html>
