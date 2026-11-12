@@ -54,7 +54,6 @@
     <!-- БЛОК АВТОРИЗАЦІЇ -->
     <div id="auth-section" style="margin-bottom: 20px; text-align: center;">
         <div id="login-buttons-wrapper">
-            <button onclick="window.open('https://t.me/my_dreams_analysis_bot', '_blank')" style="padding: 10px 20px; background: #2AABEE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; max-width: 250px; margin: 0 auto 10px auto;">✈️ Увійти через Telegram</button>
             <button id="loginBtn" style="padding: 10px 20px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; max-width: 250px; margin: 0 auto;">Увійти через Google</button>
         </div>
         <div id="auth-status-area"></div>
@@ -121,7 +120,10 @@
             <div id="resAction" class="result-text"></div>
         </div>
     </div>
-    <button id="pdfBtn" class="btn-pdf" style="display: none;" onclick="window.saveAsPdfNative()">Зберегти розбір у PDF 📥</button>
+    <div id="saveButtonsGroup" style="display: none; flex-direction: column; gap: 10px; margin-top: 20px;">
+        <button id="pdfBtn" class="btn-pdf" style="margin: 0 auto;" onclick="window.saveAsPdfNative()">Зберегти розбір у PDF 📥</button>
+        <button id="htmlBtn" class="btn-pdf" style="margin: 0 auto; background-color: #1a1c23;" onclick="window.saveAsHtmlFile()">Завантажити файлом (HTML) 📄</button>
+    </div>
 </div>
 
 <!-- Модальне вікно з тарифами -->
@@ -296,48 +298,89 @@
       } catch(e) { msgEl.innerText = "❌ Помилка бази даних!"; }
   };
 
-  // --- ЛОГІКА PDF ---
-    window.saveAsPdfNative = function() {
-      const tg = window.Telegram ? window.Telegram.WebApp : null;
-      
-      // 1. ЛОГІКА ДЛЯ ТЕЛЕГРАМУ (Мобільний + ПК)
-      if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-          // Формуємо красивий текст повідомлення
-          const textToShare = `✵ МІЙ РОЗБІР СНУ ✵\n\n` +
-              `АРХЕТИП:\n${document.getElementById('resArchetypes').innerText}\n\n` +
-              `МЕТАФОРА:\n${document.getElementById('resAnalysis').innerText}\n\n` +
-              `КОМПЕНСАЦІЯ:\n${document.getElementById('resCompensation').innerText}\n\n` +
-              `ІНТЕГРАЦІЯ:\n${document.getElementById('resAction').innerText}`;
-          
-          const shareUrl = `https://t.me/share/url?url=&text=${encodeURIComponent(textToShare)}`;
-          
-          // Відкриваємо нативне вікно вибору чату (найзручніше - відправити собі в "Збережене")
-          tg.openTelegramLink(shareUrl);
-          return;
-      }
-
-      // 2. ЛОГІКА ДЛЯ GOOGLE ТА БРАУЗЕРІВ (Класичний PDF)
+  // --- ЛОГІКА PDF ТА HTML ---
+  window.saveAsPdfNative = function() {
       const btn = document.getElementById('pdfBtn');
-      btn.innerHTML = "⏳ Збереження...";
+      btn.innerHTML = "⏳ Формуємо білий документ...";
       btn.disabled = true;
 
-      const element = document.getElementById('resultBox');
+      // Створюємо чистий білий шаблон спеціально для PDF (без темного фону і зсувів скролу)
+      const printWrapper = document.createElement('div');
+      printWrapper.style.cssText = "background: #ffffff; color: #000000; padding: 25px; font-family: 'Georgia', serif; width: 100%; box-sizing: border-box; line-height: 1.6;";
+      printWrapper.innerHTML = `
+          <h2 style="text-align: center; color: #000; margin: 0 0 5px 0; border-bottom: 2px solid #000; padding-bottom: 10px;">ГЛИБИННИЙ АНАЛІЗ СНОВИДІННЯ</h2>
+          <p style="text-align: right; font-size: 12px; color: #444; margin-top: 5px; margin-bottom: 20px;">${document.getElementById('pdfMeta').innerText}</p>
+          
+          <h3 style="color: #000; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-top: 15px;">✵ Торкання до Архетипу</h3>
+          <p style="font-weight: bold; font-style: italic; color: #111;">${document.getElementById('resArchetypes').innerHTML}</p>
+          
+          <h3 style="color: #000; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-top: 15px;">✵ Таємниця Метафори</h3>
+          <p style="color: #111; text-align: justify;">${document.getElementById('resAnalysis').innerHTML}</p>
+          
+          <h3 style="color: #000; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-top: 15px;">✵ Дзеркало для Его (Компенсація)</h3>
+          <p style="color: #111; text-align: justify;">${document.getElementById('resCompensation').innerHTML}</p>
+          
+          <h3 style="color: #000; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-top: 15px;">✵ Крок у Реальність (Інтеграція)</h3>
+          <p style="color: #111; text-align: justify;">${document.getElementById('resAction').innerHTML}</p>
+      `;
+
       const opt = {
           margin:       10,
-          filename:     'Dream_Analysis.pdf',
+          filename:     `Analiz_Snu_${currentClientName}.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, backgroundColor: '#12131a', useCORS: true },
+          // scrollY: 0 критично важливий, щоб на телефонах не рендерився чорний/пустий екран!
+          html2canvas:  { scale: 2, backgroundColor: '#ffffff', scrollY: 0, useCORS: true },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().set(opt).from(element).save().then(() => {
+      html2pdf().set(opt).from(printWrapper).save().then(() => {
           btn.innerHTML = "Зберегти розбір у PDF 📥";
           btn.disabled = false;
       }).catch(() => {
-          alert("Помилка генерації. Спробуйте ще раз.");
+          alert("Помилка генерації PDF. Спробуйте кнопку 'Завантажити файлом (HTML)'.");
           btn.innerHTML = "Зберегти розбір у PDF 📥";
           btn.disabled = false;
       });
+  };
+
+  window.saveAsHtmlFile = function() {
+      const htmlContent = `<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Аналіз сну — ${currentClientName}</title>
+<style>
+  body { font-family: 'Georgia', serif; background: #0b0c10; color: #e5dcc5; padding: 20px; max-width: 700px; margin: 0 auto; line-height: 1.7; }
+  .box { background: #12131a; padding: 25px; border-radius: 12px; border: 1px solid #d4af37; }
+  h2 { color: #d4af37; text-align: center; margin-top: 0; }
+  h3 { color: #d4af37; border-bottom: 1px dashed #3a3227; padding-bottom: 5px; margin-top: 20px; }
+  .meta { color: #888; font-size: 13px; text-align: right; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h2>✵ Глибинний Аналіз Сновидіння ✵</h2>
+    <div class="meta">${document.getElementById('pdfMeta').innerText}</div>
+    <h3>✵ Торкання до Архетипу</h3>
+    <p><b><i>${document.getElementById('resArchetypes').innerHTML}</i></b></p>
+    <h3>✵ Таємниця Метафори</h3>
+    <p>${document.getElementById('resAnalysis').innerHTML}</p>
+    <h3>✵ Дзеркало для Его (Компенсація)</h3>
+    <p>${document.getElementById('resCompensation').innerHTML}</p>
+    <h3>✵ Крок у Реальність (Інтеграція)</h3>
+    <p>${document.getElementById('resAction').innerHTML}</p>
+  </div>
+</body>
+</html>`;
+
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Analiz_Snu_${currentClientName}.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
   };
     
   // --- ЗАПИТ ДО AI ---
@@ -399,7 +442,7 @@
 
           document.getElementById('pdfMeta').innerHTML = `Клієнт: ${currentClientName} | Юнгіанський розбір`;
           document.getElementById('resultBox').style.display = 'block';
-          document.getElementById('pdfBtn').style.display = 'block';
+          document.getElementById('saveButtonsGroup').style.display = 'flex';
       } catch (error) {
           alert("Помилка зв'язку з сервером.");
       } finally {
