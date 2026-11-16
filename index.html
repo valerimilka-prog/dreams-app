@@ -226,8 +226,24 @@
           const userRef = doc(db, "users", window.currentUser.uid);
           const snap = await getDoc(userRef);
 
-          if (snap.exists()) {
+          if (!snap.exists()) {
+              // 1. ЯКЩО НОВИЙ КОРИСТУВАЧ: Одразу створюємо профіль у Firebase із 3 спробами
+              await setDoc(userRef, {
+                  displayName: displayName,
+                  dreamsLeft: 3,
+                  unlimitedAccess: false
+              });
+              document.getElementById('realLimitsText').innerText = "Доступно розборів: 3";
+          } else {
+              // 2. ЯКЩО КОРИСТУВАЧ ВЖЕ Є: Перевіряємо ліміти
               const data = snap.data();
+              
+              // Страховка: якщо запис є, але спроби туди ще не записались
+              if (data.dreamsLeft === undefined && !data.unlimitedAccess && !data.unlimitedUntil) {
+                  await setDoc(userRef, { dreamsLeft: 3 }, { merge: true });
+                  data.dreamsLeft = 3;
+              }
+
               const now = Date.now();
               let isUnlimitedDays = (data.unlimitedUntil && now < data.unlimitedUntil);
 
@@ -236,20 +252,17 @@
               } else if (isUnlimitedDays) {
                   const untilDate = new Date(data.unlimitedUntil).toLocaleDateString('uk-UA');
                   document.getElementById('realLimitsText').innerText = `Доступ: Безліміт до ${untilDate} ⏳`;
-              } else if (data.dreamsLeft !== undefined) {
+              } else {
                   if (data.dreamsLeft > 0) {
                       document.getElementById('realLimitsText').innerText = "Доступно розборів: " + data.dreamsLeft;
                   } else {
+                      // Спроби закінчились - виводимо кнопку тарифів
                       document.getElementById('realLimitsText').innerHTML = `<span style="color:#f44336">Спроби вичерпано.</span> <button onclick="document.getElementById('checkoutModal').style.display='flex'" style="background:transparent; color:#d4af37; border:none; text-decoration:underline; font-size:14px; padding:0; min-height:0; width:auto; display:inline;">Оновити доступ</button>`;
                   }
-              } else {
-                  document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
               }
-          } else {
-              document.getElementById('realLimitsText').innerText = "Доступно розборів: 3/3";
           }
       } catch (e) {
-          console.error(e);
+          console.error("Помилка бази даних:", e);
       }
   }
 
